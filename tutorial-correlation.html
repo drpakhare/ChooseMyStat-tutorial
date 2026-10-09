@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tutorial 2: Pearson Correlation &mdash; BMI and HbA1c in Type 2 Diabetes | ChooseMyStat</title>
+    <style>
+        :root {
+            --purple: #5B5FC7;
+            --purple-light: #EDEDFA;
+            --purple-dark: #4547A9;
+            --green: #2D8A4E;
+            --green-light: #E6F4EC;
+            --green-dark: #1F6B3A;
+            --text: #1E293B;
+            --text-secondary: #475569;
+            --bg: #FAFBFC;
+            --card-bg: #FFFFFF;
+            --border: #E2E8F0;
+            --shadow: 0 2px 8px rgba(0,0,0,0.08);
+            --shadow-md: 0 4px 16px rgba(0,0,0,0.10);
+            --radius: 12px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            color: var(--text);
+            background: var(--bg);
+            line-height: 1.7;
+            font-size: 16px;
+        }
+
+        /* Top navigation bar */
+        .top-nav {
+            background: var(--purple);
+            color: #fff;
+            padding: 14px 24px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 8px rgba(91,95,199,0.25);
+        }
+
+        .top-nav-inner {
+            max-width: 860px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .top-nav a {
+            color: #fff;
+            text-decoration: none;
+            font-size: 14px;
+            opacity: 0.9;
+            transition: opacity 0.2s;
+        }
+
+        .top-nav a:hover {
+            opacity: 1;
+            text-decoration: underline;
+        }
+
+        .top-nav .brand {
+            font-weight: 700;
+            font-size: 16px;
+            opacity: 1;
+            letter-spacing: 0.02em;
+        }
+
+        /* Main container */
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 32px 20px 60px;
+        }
+
+        /* Tutorial header */
+        .tutorial-header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 32px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .tutorial-label {
+            display: inline-block;
+            background: var(--purple-light);
+            color: var(--purple);
+            font-weight: 600;
+            font-size: 13px;
+            padding: 4px 14px;
+            border-radius: 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-bottom: 16px;
+        }
+
+        .tutorial-header h1 {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--text);
+            margin-bottom: 12px;
+            line-height: 1.25;
+        }
+
+        .tutorial-header h1 span {
+            color: var(--purple);
+        }
+
+        .tutorial-header .subtitle {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Scenario card */
+        .scenario-card {
+            background: linear-gradient(135deg, var(--purple-light) 0%, #f0f0ff 100%);
+            border-left: 5px solid var(--purple);
+            border-radius: var(--radius);
+            padding: 28px 28px 24px;
+            margin-bottom: 40px;
+        }
+
+        .scenario-card h2 {
+            font-size: 1.25rem;
+            color: var(--purple-dark);
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .scenario-card p {
+            margin-bottom: 10px;
+            color: var(--text);
+        }
+
+        .scenario-card ul {
+            list-style: none;
+            padding: 0;
+            margin-top: 12px;
+        }
+
+        .scenario-card ul li {
+            padding: 4px 0 4px 24px;
+            position: relative;
+            color: var(--text-secondary);
+        }
+
+        .scenario-card ul li::before {
+            content: "\2713";
+            position: absolute;
+            left: 0;
+            color: var(--green);
+            font-weight: 700;
+        }
+
+        /* Step sections */
+        .step {
+            margin-bottom: 44px;
+        }
+
+        .step-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .step-badge {
+            flex-shrink: 0;
+            width: 44px;
+            height: 44px;
+            background: var(--purple);
+            color: #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 18px;
+            box-shadow: 0 2px 8px rgba(91,95,199,0.3);
+        }
+
+        .step-badge.green {
+            background: var(--green);
+            box-shadow: 0 2px 8px rgba(45,138,78,0.3);
+        }
+
+        .step-header h2 {
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-top: 6px;
+        }
+
+        .step-header h2 .highlight {
+            color: var(--purple);
+        }
+
+        .step-body {
+            padding-left: 60px;
+        }
+
+        .step-body p {
+            margin-bottom: 12px;
+            color: var(--text-secondary);
+        }
+
+        .step-body p strong {
+            color: var(--text);
+        }
+
+        /* Action instruction callout */
+        .action-box {
+            background: var(--green-light);
+            border: 1px solid #b6dfc5;
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin: 14px 0;
+            font-size: 15px;
+            color: var(--green-dark);
+            font-weight: 500;
+        }
+
+        .action-box::before {
+            content: "\25B6  ";
+            font-size: 12px;
+        }
+
+        /* Reasoning / tip callout */
+        .tip-box {
+            background: #FFF8ED;
+            border: 1px solid #F5DEB3;
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin: 14px 0;
+            font-size: 14.5px;
+            color: #7A5D1E;
+        }
+
+        .tip-box strong {
+            color: #5C4415;
+        }
+
+        /* Screenshots */
+        .screenshot-wrapper {
+            margin: 18px 0 8px;
+            text-align: center;
+        }
+
+        .screenshot-wrapper img {
+            max-width: 100%;
+            border-radius: 10px;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border);
+        }
+
+        .screenshot-caption {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-top: 8px;
+            font-style: italic;
+        }
+
+        /* Result card */
+        .result-card {
+            background: var(--card-bg);
+            border: 2px solid var(--green);
+            border-radius: var(--radius);
+            padding: 24px;
+            margin: 20px 0;
+        }
+
+        .result-card h3 {
+            color: var(--green);
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+
+        .result-card p {
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .result-card .result-stat {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--green-dark);
+            margin: 8px 0;
+        }
+
+        /* "What you get" list */
+        .deliverables {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+            margin: 16px 0;
+        }
+
+        .deliverable-item {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 18px;
+            transition: box-shadow 0.2s;
+        }
+
+        .deliverable-item:hover {
+            box-shadow: var(--shadow);
+        }
+
+        .deliverable-item h4 {
+            font-size: 15px;
+            color: var(--purple);
+            margin-bottom: 6px;
+        }
+
+        .deliverable-item p {
+            font-size: 13.5px;
+            color: var(--text-secondary);
+            margin: 0;
+        }
+
+        /* Key takeaways */
+        .takeaways {
+            background: linear-gradient(135deg, var(--green-light) 0%, #f0faf4 100%);
+            border-left: 5px solid var(--green);
+            border-radius: var(--radius);
+            padding: 28px;
+            margin: 36px 0;
+        }
+
+        .takeaways h2 {
+            color: var(--green-dark);
+            font-size: 1.25rem;
+            margin-bottom: 16px;
+        }
+
+        .takeaways ol {
+            padding-left: 20px;
+        }
+
+        .takeaways ol li {
+            margin-bottom: 12px;
+            color: var(--text);
+        }
+
+        .takeaways ol li strong {
+            color: var(--green-dark);
+        }
+
+        /* CTA button */
+        .cta-section {
+            text-align: center;
+            margin: 44px 0 36px;
+            padding: 32px 20px;
+            background: var(--purple-light);
+            border-radius: var(--radius);
+        }
+
+        .cta-section p {
+            font-size: 1.05rem;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background: var(--purple);
+            color: #fff;
+            text-decoration: none;
+            padding: 14px 36px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 16px;
+            transition: background 0.2s, transform 0.1s;
+            box-shadow: 0 2px 8px rgba(91,95,199,0.3);
+        }
+
+        .cta-button:hover {
+            background: var(--purple-dark);
+            transform: translateY(-1px);
+        }
+
+        /* Other tutorials nav */
+        .other-tutorials {
+            border-top: 2px solid var(--border);
+            padding-top: 32px;
+            margin-top: 36px;
+        }
+
+        .other-tutorials h3 {
+            font-size: 1.1rem;
+            color: var(--text);
+            margin-bottom: 16px;
+        }
+
+        .tutorial-links {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .tutorial-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 18px;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            text-decoration: none;
+            color: var(--text);
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .tutorial-link:hover {
+            border-color: var(--purple);
+            box-shadow: var(--shadow);
+        }
+
+        .tutorial-link .tl-num {
+            width: 32px;
+            height: 32px;
+            background: var(--purple-light);
+            color: var(--purple);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        .tutorial-link .tl-num.current {
+            background: var(--purple);
+            color: #fff;
+        }
+
+        .tutorial-link .tl-text {
+            font-size: 14.5px;
+        }
+
+        .tutorial-link .tl-text .tl-title {
+            font-weight: 600;
+        }
+
+        .tutorial-link .tl-text .tl-stat {
+            color: var(--text-secondary);
+            font-size: 13px;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 32px 20px;
+            margin-top: 24px;
+            border-top: 1px solid var(--border);
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        footer a {
+            color: var(--purple);
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Responsive tweaks */
+        @media (max-width: 640px) {
+            .tutorial-header h1 {
+                font-size: 1.55rem;
+            }
+
+            .step-body {
+                padding-left: 0;
+                margin-top: 10px;
+            }
+
+            .step-header {
+                gap: 12px;
+            }
+
+            .deliverables {
+                grid-template-columns: 1fr;
+            }
+
+            .scenario-card,
+            .takeaways {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Top Navigation -->
+    <nav class="top-nav">
+        <div class="top-nav-inner">
+            <a href="index.html" class="brand">ChooseMyStat Tutorials</a>
+            <a href="https://choose-my-stat.vercel.app" target="_blank" rel="noopener">Open the App &rarr;</a>
+        </div>
+    </nav>
+
+    <div class="container">
+
+        <!-- Tutorial Header -->
+        <header class="tutorial-header">
+            <div class="tutorial-label">Tutorial 2</div>
+            <h1>BMI and HbA1c Correlation<br>in Type 2 Diabetes<br><span>Pearson / Spearman Correlation</span></h1>
+            <p class="subtitle">
+                Walk through ChooseMyStat to choose the right test and calculate the sample size for studying the linear association between BMI and HbA1c in newly diagnosed T2DM patients.
+            </p>
+        </header>
+
+        <!-- Study Scenario -->
+        <section class="scenario-card">
+            <h2>Study Scenario</h2>
+            <p>
+                Dr. Verma, a PG resident in General Medicine at a district hospital in Madhya Pradesh, wants to study the <strong>linear association between BMI and HbA1c</strong> in newly diagnosed Type 2 Diabetes Mellitus (T2DM) patients. The clinical question is straightforward: do patients with higher BMI also tend to have higher glycated haemoglobin levels?
+            </p>
+            <p>
+                Based on prior Indian studies (Mohan et al. 2007, CURES cohort; Ramachandran et al. 2010), the expected correlation coefficient is <strong>moderate positive (r &asymp; 0.35)</strong>. This is a cross-sectional study measuring two continuous variables on each participant &mdash; a classic correlation analysis.
+            </p>
+            <ul>
+                <li><strong>Variable 1:</strong> Body Mass Index (kg/m&sup2;) &mdash; continuous</li>
+                <li><strong>Variable 2:</strong> HbA1c (%) &mdash; continuous</li>
+                <li><strong>Design:</strong> Cross-sectional, no intervention</li>
+                <li><strong>Expected correlation (r):</strong> 0.35 (moderate positive)</li>
+                <li><strong>Significance level (&alpha;):</strong> 0.05 (two-sided)</li>
+                <li><strong>Power:</strong> 80%</li>
+            </ul>
+        </section>
+
+        <!-- Step 1: Open the app -->
+        <section class="step">
+            <div class="step-header">
+                <div class="step-badge">1</div>
+                <h2>Open the App and <span class="highlight">Choose a Pathway</span></h2>
+            </div>
+            <div class="step-body">
+                <p>
+                    Go to <a href="https://choose-my-stat.vercel.app" target="_blank" rel="noopener"><strong>choose-my-stat.vercel.app</strong></a>. You will see the landing page with a brief introduction to what the app does.
+                </p>
+
+                <div class="action-box">
+                    Click the <strong>"Choose a Statistical Test"</strong> button (the purple button on the landing page).
+                </div>
+
+                <p>
+                    You will see five pathway cards. Since we want to study the <strong>association</strong> between two continuous variables (not compare groups), we do <em>not</em> choose "Comparing Groups / Before-After". Instead, we need the pathway that handles correlation and association.
+                </p>
+
+                <div class="action-box">
+                    Click <strong>"Correlation / Association"</strong> to start the guided decision tree for association analysis.
+                </div>
+
+                <div class="tip-box">
+                    <strong>Correlation vs. Regression:</strong> Correlation measures the strength and direction of a linear relationship between two variables, without implying causation or prediction. If your goal were to <em>predict</em> HbA1c from BMI (or to adjust for confounders), you would choose the "Regression" pathway instead. Here, we simply want to quantify the association.
+                </div>
+            </div>
+        </section>
+
+        <!-- Step 2: Outcome type -->
+        <section class="step">
+            <div class="step-header">
+                <div class="step-badge">2</div>
+                <h2>Step 1 in the App: <span class="highlight">Outcome Type</span></h2>
+            </div>
+            <div class="step-body">
+                <p>
+                    The first question the app asks is: <strong>"What type of outcome variable are you measuring?"</strong>
+                </p>
+                <p>
+                    Both BMI and HbA1c are <strong>continuous</strong> variables &mdash; they are numeric measurements on a ratio scale. BMI is measured in kg/m&sup2; and HbA1c in percentage (or mmol/mol in IFCC units).
+                </p>
+
+                <div class="action-box">
+                    Select <strong>"Continuous"</strong>.
+                </div>
+
+                <div class="screenshot-wrapper">
+                    <img src="images/01-step1-outcome.jpg" alt="Step 1: Outcome type question with Continuous selected">
+                    <div class="screenshot-caption">Select "Continuous" &mdash; both BMI and HbA1c are continuous measurements</div>
+                </div>
+
+                <div class="tip-box">
+                    <strong>Why "Continuous"?</strong> BMI values like 24.3, 28.7, 31.2 and HbA1c values like 7.2%, 8.5%, 10.1% are numeric measurements that can take any value within a range. If instead you had categorised BMI as "normal / overweight / obese", you would choose a different outcome type, and the app would guide you toward a different test (such as Spearman's rank correlation or a chi-square test for trend).
+                </div>
+            </div>
+        </section>
+
+        <!-- Step 3: Association -->
+        <section class="step">
+            <div class="step-header">
+                <div class="step-badge">3</div>
+                <h2>Step 2 in the App: <span class="highlight">Association (2 Variables)</span></h2>
+            </div>
+            <div class="step-body">
+                <p>
+                    Next, the app asks about your comparison structure. Since we are studying the <strong>association between two continuous variables</strong> (not comparing groups), we select the association option.
+                </p>
+
+                <div class="action-box">
+                    Select <strong>"Association (2 variables)"</strong>.
+                </div>
+
+                <div class="tip-box">
+                    <strong>Two variables, no groups:</strong> In a correlation study, there are no "groups" being compared. Each participant contributes two measurements (BMI and HbA1c), and we ask whether these two measurements co-vary. This is fundamentally different from comparing means between groups (which would call for a t-test or ANOVA).
+                </div>
+            </div>
+        </section>
+
+        <!-- Step 4: Confounders -->
+        <section class="step">
+            <div class="step-header">
+                <div class="step-badge">4</div>
+                <h2>Step 3 in the App: <span class="highlight">Confounders</span></h2>
+            </div>
+            <div class="step-body">
+                <p>
+                    The app asks: <strong>"Do you need to adjust for confounders or covariates?"</strong>
+                </p>
+                <p>
+                    In this initial analysis, Dr. Verma wants to simply quantify the <strong>bivariate association</strong> between BMI and HbA1c. There is no adjustment for age, sex, duration of diabetes, or other covariates at this stage. A simple correlation coefficient is sufficient.
+                </p>
+
+                <div class="action-box">
+                    Select <strong>"No"</strong>.
+                </div>
+
+                <div class="tip-box">
+                    <strong>When to say "Yes":</strong> If you wanted to examine the BMI&ndash;HbA1c association <em>after controlling for</em> age, sex, or medication use, you would say "Yes". The app would then guide you toward <strong>partial correlation</strong> or <strong>linear regression</strong>, which allow you to adjust for confounders. For a thesis, you might first report the unadjusted Pearson r, then follow up with an adjusted analysis.
+                </div>
+            </div>
+        </section>
+
+        <!-- Step 5: The Result -->
+        <section class="step">
+            <div class="step-header">
+                <div class="step-badge green">5</div>
+                <h2><span class="highlight" style="color: var(--green);">The Result:</span> Pearson / Spearman Correlation</h2>
+            </div>
+            <div class="step-body">
+                <p>
+                    The app recommends <strong>Pearson Correlation</strong> (if the data are approximately bivariate normal) or <strong>Spearman Rank Correlation</strong> (if the data are non-normal or contain outliers). Both are valid for quantifying the linear association between two continuous variables.
+                </p>
+
+                <div class="screenshot-wrapper">
+                    <img src="images/02-result.jpg" alt="Result page showing Pearson / Spearman Correlation recommended">
+                    <div class="screenshot-caption">ChooseMyStat recommends Pearson or Spearman Correlation</div>
+                </div>
+
+                <div class="result-card">
+                    <h3>Pearson vs. Spearman &mdash; Which One?</h3>
+                    <p>
+                        <strong>Pearson's r</strong> measures the linear association between two variables and assumes both variables are approximately normally distributed (bivariate normality). It is the default choice for interval/ratio data that meets this assumption.
+                    </p>
+                    <p>
+                        <strong>Spearman's &rho; (rho)</strong> is a rank-based measure that does not assume normality. Use it when: (a) one or both variables are skewed, (b) there are significant outliers, or (c) the relationship is monotonic but not strictly linear. In Indian clinical samples, HbA1c is often right-skewed in newly diagnosed patients, so Spearman may be more appropriate.
+                    </p>
+                </div>
+
+                <p>
+                    Scroll down on the result page to find the <strong>SAP template</strong> &mdash; a ready-to-use paragraph for your thesis protocol describing the correlation analysis, including a mention of which coefficient to use based on normality testing.
+                </p>
+
+                <div class="screenshot-wrapper">
+                    <img src="images/02-result-sap.jpg" alt="SAP template for correlation analysis">
+                    <div class="screenshot-caption">The SAP template and sample size guidance for correlation</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Step 6: Sample Size Calculation -->
+        <section class="step">
+            <div class="step-header">
+                <div class="step-badge green">6</div>
+                <h2><span class="highlight" style="color: var(--green);">Sample Size Calculation</span></h2>
+            </div>
+            <div class="step-body">
+                <p>
+                    The sample size formula for testing a correlation coefficient uses <strong>Fisher's z transformation</strong>. The key formula is:
+                </p>
+
+                <div class="result-card">
+                    <h3>Formula for Correlation Sample Size</h3>
+                    <p>
+                        n = [(Z<sub>&alpha;/2</sub> + Z<sub>&beta;</sub>) / C(r)]&sup2; + 3
+                    </p>
+                    <p>
+                        where C(r) = 0.5 &times; ln[(1 + r) / (1 &minus; r)] is the Fisher z-transform of the expected correlation coefficient r.
+                    </p>
+                </div>
+
+                <p>Now fill in the parameters from our study scenario:</p>
+
+                <div style="overflow-x: auto; margin: 16px 0;">
+                    <table style="width: 100%; border-collapse: collapse; font-size: 15px;">
+                        <thead>
+                            <tr style="background: var(--purple-light);">
+                                <th style="text-align: left; padding: 10px 14px; border-bottom: 2px solid var(--purple); color: var(--purple-dark);">Parameter</th>
+                                <th style="text-align: left; padding: 10px 14px; border-bottom: 2px solid var(--purple); color: var(--purple-dark);">Value</th>
+                                <th style="text-align: left; padding: 10px 14px; border-bottom: 2px solid var(--purple); color: var(--purple-dark);">Why?</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td style="padding: 10px 14px; border-bottom: 1px solid var(--border);">Expected r</td>
+                                <td style="padding: 10px 14px; border-bottom: 1px solid var(--border);"><strong>0.35</strong></td>
+                                <td style="padding: 10px 14px; border-bottom: 1px solid var(--border);">Moderate positive correlation from Mohan et al. (CURES) and Ramachandran et al.</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px 14px; border-bottom: 1px solid var(--border);">C(r) = Fisher z-transform</td>
+                                <td style="padding: 10px 14px; border-bottom: 1px solid var(--border);"><strong>0.3654</strong></td>
+                                <td style="padding: 10px 14px; border-bottom: 1px solid var(--border);">C(0.35) = 0.5 &times; ln(1.35/0.65) = 0.3654</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px 14px; border-bottom: 1px solid var(--border);">Z<sub>&alpha;/2</sub></td>
+                                <td style="padding: 10px 14px; border-bottom: 1px solid var(--border);"><strong>1.96</strong></td>
+                                <td style="padding: 10px 14px; border-bottom: 1px solid var(--border);">For &alpha; = 0.05, two-sided</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px 14px; border-bottom: 1px solid var(--border);">Z<sub>&beta;</sub></td>
+                                <td style="padding: 10px 14px; border-bottom: 1px solid var(--border);"><strong>0.842</strong></td>
+                                <td style="padding: 10px 14px; border-bottom: 1px solid var(--border);">For 80% power</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px 14px; border-bottom: 1px solid var(--border);">Test type</td>
+                                <td style="padding: 10px 14px; border-bottom: 1px solid var(--border);"><strong>Two-sided</strong></td>
+                                <td style="padding: 10px 14px; border-bottom: 1px solid var(--border);">We test for any correlation (positive or negative)</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px 14px;">Dropout / non-response</td>
+                                <td style="padding: 10px 14px;"><strong>10%</strong></td>
+                                <td style="padding: 10px 14px;">To account for incomplete data (missing BMI or HbA1c values)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="result-card">
+                    <h3>Sample Size Result</h3>
+                    <p>Applying the formula:</p>
+                    <p>n = [(1.96 + 0.842) / 0.3654]&sup2; + 3 = [2.802 / 0.3654]&sup2; + 3 = [7.668]&sup2; + 3 = 58.8 + 3 &asymp; 62</p>
+                    <div class="result-stat">n = 62 (analytical) &rarr; N = 69 (with 10% dropout)</div>
+                    <p>
+                        You need <strong>62 participants</strong> to detect a correlation of r = 0.35 with 80% power at the 5% significance level. After adding 10% for incomplete data, you should <strong>recruit approximately 69 patients</strong>.
+                    </p>
+                </div>
+
+                <div class="tip-box">
+                    <strong>Why r = 0.35 is clinically meaningful:</strong> In clinical epidemiology, correlation coefficients are often lower than in laboratory settings because of biological variability and measurement error. A correlation of 0.35 means BMI explains about 12% of the variance in HbA1c (r&sup2; = 0.12). While this may seem modest, it is consistent with the multifactorial nature of glycaemic control &mdash; BMI is only one of many determinants of HbA1c (others include beta-cell function, diet, physical activity, genetics, and medication adherence). In the Indian context, Mohan et al. consistently report moderate correlations between adiposity measures and glycaemic markers.
+                </div>
+
+                <div class="tip-box">
+                    <strong>Fisher's z transformation &mdash; why is it needed?</strong> The sampling distribution of the Pearson correlation coefficient r is not normal (it is bounded between &minus;1 and +1 and becomes increasingly skewed as |r| approaches 1). Fisher's z-transformation converts r to a quantity z = 0.5 &times; ln[(1+r)/(1&minus;r)] whose sampling distribution is approximately normal with standard error 1/&radic;(n&minus;3). This is why the "+3" appears in the sample size formula, and why the formula works well for sample size calculation.
+                </div>
+            </div>
+        </section>
+
+        <!-- Step 7: What You Get -->
+        <section class="step">
+            <div class="step-header">
+                <div class="step-badge green">7</div>
+                <h2><span class="highlight" style="color: var(--green);">What You Get</span> from ChooseMyStat</h2>
+            </div>
+            <div class="step-body">
+                <p>
+                    In addition to the test recommendation and sample size, ChooseMyStat provides several ready-to-use outputs for your thesis or protocol:
+                </p>
+
+                <div class="deliverables">
+                    <div class="deliverable-item">
+                        <h4>SAP Template</h4>
+                        <p>A pre-written Statistical Analysis Plan paragraph describing your correlation analysis, including normality testing and the choice between Pearson and Spearman.</p>
+                    </div>
+                    <div class="deliverable-item">
+                        <h4>Results Example</h4>
+                        <p>A template showing how to report correlation results (r or &rho;, 95% CI, p-value) following standard reporting guidelines.</p>
+                    </div>
+                    <div class="deliverable-item">
+                        <h4>R Code</h4>
+                        <p>Ready-to-run R code for computing Pearson and Spearman correlations, including scatter plot generation and normality checks (Shapiro-Wilk test).</p>
+                    </div>
+                    <div class="deliverable-item">
+                        <h4>G*Power Instructions</h4>
+                        <p>Step-by-step instructions for verifying your sample size calculation in G*Power using the "Correlation: Bivariate normal model" test family.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Key Takeaways -->
+        <section class="takeaways">
+            <h2>Key Takeaways</h2>
+            <ol>
+                <li>
+                    <strong>Pearson vs. Spearman &mdash; choose based on your data:</strong> Use Pearson's r when both variables are approximately normally distributed and the relationship appears linear. Use Spearman's &rho; when the data are skewed, contain outliers, or the relationship is monotonic but not linear. Always check normality (Shapiro-Wilk test, Q-Q plots) before deciding.
+                </li>
+                <li>
+                    <strong>r = 0.35 is clinically meaningful in epidemiology:</strong> Do not dismiss moderate correlations. In multifactorial diseases like T2DM, a single variable rarely explains more than 10&ndash;15% of the outcome variance. An r of 0.35 is consistent with findings from large Indian cohort studies (CURES, ICMR-INDIAB).
+                </li>
+                <li>
+                    <strong>Fisher's z transformation is essential for sample size:</strong> The correlation coefficient r has a bounded, skewed distribution. The z-transformation normalises it, enabling valid sample size calculations and confidence interval construction.
+                </li>
+                <li>
+                    <strong>Always report 95% CIs alongside p-values:</strong> A p-value tells you whether r is significantly different from zero, but the 95% confidence interval tells you the plausible range of the true correlation. For r = 0.35 with n = 62, the 95% CI is approximately (0.11, 0.55) &mdash; confirming a positive but imprecisely estimated association.
+                </li>
+                <li>
+                    <strong>Correlation is not causation:</strong> A positive BMI&ndash;HbA1c correlation does not prove that higher BMI <em>causes</em> higher HbA1c. Confounders such as physical inactivity, dietary patterns, and genetic predisposition may explain part of the observed association. For causal inference, consider multivariable regression or a longitudinal design.
+                </li>
+            </ol>
+        </section>
+
+        <!-- Try it yourself CTA -->
+        <section class="cta-section">
+            <p>Ready to find the right test for <em>your</em> study?</p>
+            <a href="https://choose-my-stat.vercel.app" target="_blank" rel="noopener" class="cta-button">
+                Try ChooseMyStat Yourself
+            </a>
+        </section>
+
+        <!-- Other Tutorials -->
+        <section class="other-tutorials">
+            <h3>All Tutorials in This Series</h3>
+            <div class="tutorial-links">
+                <a href="tutorial-paired-ttest.html" class="tutorial-link">
+                    <div class="tl-num">1</div>
+                    <div class="tl-text">
+                        <div class="tl-title">Effect of Yoga on Blood Pressure</div>
+                        <div class="tl-stat">Paired t-test</div>
+                    </div>
+                </a>
+                <a href="tutorial-correlation.html" class="tutorial-link" style="border-color: var(--purple); background: var(--purple-light);">
+                    <div class="tl-num current">2</div>
+                    <div class="tl-text">
+                        <div class="tl-title">BMI and HbA1c Correlation in Type 2 Diabetes</div>
+                        <div class="tl-stat">Pearson / Spearman Correlation &bull; You are here</div>
+                    </div>
+                </a>
+                <a href="tutorial-anova.html" class="tutorial-link">
+                    <div class="tl-num">3</div>
+                    <div class="tl-text">
+                        <div class="tl-title">Comparing HbA1c Across Three Diabetes Regimens</div>
+                        <div class="tl-stat">One-Way ANOVA</div>
+                    </div>
+                </a>
+                <a href="tutorial-logistic-regression.html" class="tutorial-link">
+                    <div class="tl-num">4</div>
+                    <div class="tl-text">
+                        <div class="tl-title">Risk Factors for Preeclampsia</div>
+                        <div class="tl-stat">Chi-Square + Logistic Regression</div>
+                    </div>
+                </a>
+                <a href="tutorial-icc.html" class="tutorial-link">
+                    <div class="tl-num">5</div>
+                    <div class="tl-text">
+                        <div class="tl-title">Inter-rater Reliability of Fundoscopy Grading</div>
+                        <div class="tl-stat">Intraclass Correlation Coefficient (ICC)</div>
+                    </div>
+                </a>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>
+            <strong>ChooseMyStat Tutorials</strong> &mdash; AIIMS Bhopal, Clinical Epidemiology Unit
+        </p>
+        <p style="margin-top: 6px;">
+            <a href="index.html">Back to Tutorial Index</a> &nbsp;&middot;&nbsp;
+            <a href="https://choose-my-stat.vercel.app" target="_blank" rel="noopener">Open ChooseMyStat</a>
+        </p>
+    </footer>
+
+</body>
+</html>

@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChooseMyStat Tutorials — Learn Statistical Analysis Step by Step</title>
+    <style>
+        :root {
+            --purple: #5B5FC7;
+            --purple-light: #EDEDFA;
+            --purple-dark: #4547A9;
+            --green: #2D8A4E;
+            --green-light: #E6F4EC;
+            --green-dark: #1F6B3A;
+            --text: #1E293B;
+            --text-secondary: #475569;
+            --bg: #FAFBFC;
+            --card-bg: #FFFFFF;
+            --border: #E2E8F0;
+            --shadow: 0 2px 8px rgba(0,0,0,0.08);
+            --shadow-md: 0 4px 16px rgba(0,0,0,0.10);
+            --radius: 12px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            color: var(--text);
+            background: var(--bg);
+            line-height: 1.7;
+            font-size: 16px;
+        }
+
+        .top-nav {
+            background: var(--purple);
+            color: #fff;
+            padding: 14px 24px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 8px rgba(91,95,199,0.25);
+        }
+
+        .top-nav-inner {
+            max-width: 860px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .top-nav a {
+            color: #fff;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 15px;
+        }
+
+        .top-nav a:hover { text-decoration: underline; }
+
+        .top-nav .brand {
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+        }
+
+        .container {
+            max-width: 860px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        .hero {
+            text-align: center;
+            padding: 64px 24px 48px;
+        }
+
+        .hero h1 {
+            font-size: 2.4rem;
+            font-weight: 800;
+            color: var(--purple);
+            margin-bottom: 16px;
+            letter-spacing: -0.5px;
+        }
+
+        .hero p {
+            font-size: 1.15rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto 32px;
+        }
+
+        .hero-badge {
+            display: inline-block;
+            background: var(--green-light);
+            color: var(--green-dark);
+            font-size: 14px;
+            font-weight: 600;
+            padding: 6px 16px;
+            border-radius: 20px;
+        }
+
+        .tutorials-grid {
+            display: grid;
+            gap: 24px;
+            padding-bottom: 48px;
+        }
+
+        .tutorial-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            transition: transform 0.2s, box-shadow 0.2s;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+
+        .tutorial-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .tutorial-card-inner {
+            padding: 28px 32px;
+            display: flex;
+            align-items: flex-start;
+            gap: 24px;
+        }
+
+        .tutorial-number {
+            flex-shrink: 0;
+            width: 52px;
+            height: 52px;
+            background: var(--purple-light);
+            color: var(--purple);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            font-weight: 800;
+        }
+
+        .tutorial-content { flex: 1; }
+
+        .tutorial-content h2 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 6px;
+        }
+
+        .tutorial-content .test-badge {
+            display: inline-block;
+            background: var(--purple-light);
+            color: var(--purple-dark);
+            font-size: 12px;
+            font-weight: 700;
+            padding: 3px 10px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .tutorial-content p {
+            font-size: 15px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .tutorial-content .tags {
+            margin-top: 12px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .tutorial-content .tag {
+            font-size: 12px;
+            padding: 3px 10px;
+            border-radius: 6px;
+            background: var(--green-light);
+            color: var(--green-dark);
+            font-weight: 600;
+        }
+
+        .tutorial-arrow {
+            flex-shrink: 0;
+            color: var(--purple);
+            font-size: 24px;
+            align-self: center;
+            opacity: 0.4;
+            transition: opacity 0.2s, transform 0.2s;
+        }
+
+        .tutorial-card:hover .tutorial-arrow {
+            opacity: 1;
+            transform: translateX(4px);
+        }
+
+        .learn-section {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 36px 32px;
+            margin-bottom: 48px;
+        }
+
+        .learn-section h2 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--purple);
+            margin-bottom: 20px;
+        }
+
+        .learn-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+        }
+
+        .learn-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .learn-icon {
+            flex-shrink: 0;
+            width: 36px;
+            height: 36px;
+            background: var(--green-light);
+            color: var(--green);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .learn-item p {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        .learn-item strong {
+            color: var(--text);
+            display: block;
+            font-size: 14px;
+            margin-bottom: 2px;
+        }
+
+        .cta-section {
+            text-align: center;
+            padding: 40px 24px 64px;
+        }
+
+        .cta-btn {
+            display: inline-block;
+            background: var(--green);
+            color: #fff;
+            text-decoration: none;
+            font-size: 16px;
+            font-weight: 700;
+            padding: 14px 36px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(45,138,78,0.25);
+            transition: background 0.2s, transform 0.15s;
+        }
+
+        .cta-btn:hover {
+            background: var(--green-dark);
+            transform: translateY(-1px);
+        }
+
+        .cta-sub {
+            margin-top: 12px;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        footer {
+            border-top: 1px solid var(--border);
+            padding: 24px;
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 13px;
+        }
+
+        footer a {
+            color: var(--purple);
+            text-decoration: none;
+        }
+
+        footer a:hover { text-decoration: underline; }
+
+        @media (max-width: 600px) {
+            .hero h1 { font-size: 1.8rem; }
+            .tutorial-card-inner { padding: 20px; gap: 16px; }
+            .tutorial-number { width: 40px; height: 40px; font-size: 18px; }
+            .learn-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<nav class="top-nav">
+    <div class="top-nav-inner">
+        <a href="https://choose-my-stat.vercel.app" class="brand">ChooseMyStat</a>
+        <a href="https://choose-my-stat.vercel.app" style="font-weight:400; opacity:0.9;">Back to App &rarr;</a>
+    </div>
+</nav>
+
+<section class="hero">
+    <div class="container">
+        <span class="hero-badge">5 Step-by-Step Tutorials</span>
+        <h1>Learn ChooseMyStat<br>by Example</h1>
+        <p>Each tutorial walks you through a real clinical research scenario &mdash; from choosing the right statistical test to calculating sample size &mdash; using the ChooseMyStat app.</p>
+    </div>
+</section>
+
+<div class="container">
+
+    <div class="learn-section">
+        <h2>What These Tutorials Cover</h2>
+        <div class="learn-grid">
+            <div class="learn-item">
+                <div class="learn-icon">&#x1F50D;</div>
+                <div>
+                    <strong>Choose the Right Test</strong>
+                    <p>Navigate decision trees based on your study design, outcome type, and comparison structure.</p>
+                </div>
+            </div>
+            <div class="learn-item">
+                <div class="learn-icon">&#x1F4CA;</div>
+                <div>
+                    <strong>Calculate Sample Size</strong>
+                    <p>Determine how many participants you need, with adjustments for expected dropout.</p>
+                </div>
+            </div>
+            <div class="learn-item">
+                <div class="learn-icon">&#x1F4DD;</div>
+                <div>
+                    <strong>Write SAP Sections</strong>
+                    <p>Generate publication-ready statistical analysis plan text for your protocol.</p>
+                </div>
+            </div>
+            <div class="learn-item">
+                <div class="learn-icon">&#x1F3E5;</div>
+                <div>
+                    <strong>Real Indian Studies</strong>
+                    <p>Each tutorial uses a realistic clinical scenario from Indian medical research settings.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="tutorials-grid">
+
+        <a href="tutorial-paired-ttest.html" class="tutorial-card">
+            <div class="tutorial-card-inner">
+                <div class="tutorial-number">1</div>
+                <div class="tutorial-content">
+                    <span class="test-badge">Paired t-test</span>
+                    <h2>Effect of Yoga on Blood Pressure</h2>
+                    <p>A before-and-after study measuring the impact of a 12-week yoga intervention on systolic blood pressure in hypertensive patients at a tertiary care hospital.</p>
+                    <div class="tags">
+                        <span class="tag">Continuous outcome</span>
+                        <span class="tag">Paired groups</span>
+                        <span class="tag">Sample size: n=33</span>
+                    </div>
+                </div>
+                <span class="tutorial-arrow">&rarr;</span>
+            </div>
+        </a>
+
+        <a href="tutorial-correlation.html" class="tutorial-card">
+            <div class="tutorial-card-inner">
+                <div class="tutorial-number">2</div>
+                <div class="tutorial-content">
+                    <span class="test-badge">Pearson / Spearman Correlation</span>
+                    <h2>BMI and HbA1c in Type 2 Diabetes</h2>
+                    <p>Investigating the linear association between body mass index and glycaemic control in newly diagnosed diabetic patients at a district hospital in Madhya Pradesh.</p>
+                    <div class="tags">
+                        <span class="tag">Continuous outcome</span>
+                        <span class="tag">Association</span>
+                        <span class="tag">Sample size: n=69</span>
+                    </div>
+                </div>
+                <span class="tutorial-arrow">&rarr;</span>
+            </div>
+        </a>
+
+        <a href="tutorial-anova.html" class="tutorial-card">
+            <div class="tutorial-card-inner">
+                <div class="tutorial-number">3</div>
+                <div class="tutorial-content">
+                    <span class="test-badge">One-Way ANOVA</span>
+                    <h2>Comparing Three Diabetes Treatment Regimens</h2>
+                    <p>An endocrinologist comparing HbA1c reduction across metformin monotherapy, metformin + glimepiride, and metformin + vildagliptin over 6 months.</p>
+                    <div class="tags">
+                        <span class="tag">Continuous outcome</span>
+                        <span class="tag">3+ groups</span>
+                        <span class="tag">Sample size: n=131</span>
+                    </div>
+                </div>
+                <span class="tutorial-arrow">&rarr;</span>
+            </div>
+        </a>
+
+        <a href="tutorial-logistic-regression.html" class="tutorial-card">
+            <div class="tutorial-card-inner">
+                <div class="tutorial-number">4</div>
+                <div class="tutorial-content">
+                    <span class="test-badge">Logistic Regression</span>
+                    <h2>Risk Factors for Preeclampsia</h2>
+                    <p>Studying multiple risk factors (BMI, age, parity, family history, gestational diabetes) for preeclampsia in a cohort of pregnant women, with confounder adjustment.</p>
+                    <div class="tags">
+                        <span class="tag">Binary outcome</span>
+                        <span class="tag">Confounders</span>
+                        <span class="tag">Sample size: n=625</span>
+                    </div>
+                </div>
+                <span class="tutorial-arrow">&rarr;</span>
+            </div>
+        </a>
+
+        <a href="tutorial-icc.html" class="tutorial-card">
+            <div class="tutorial-card-inner">
+                <div class="tutorial-number">5</div>
+                <div class="tutorial-content">
+                    <span class="test-badge">Intraclass Correlation (ICC)</span>
+                    <h2>Inter-Rater Reliability of Fundoscopy Grading</h2>
+                    <p>Assessing agreement between two ophthalmologists independently grading diabetic retinopathy severity using a continuous severity score (0&ndash;100).</p>
+                    <div class="tags">
+                        <span class="tag">Agreement pathway</span>
+                        <span class="tag">Continuous measure</span>
+                        <span class="tag">Sample size: n=22</span>
+                    </div>
+                </div>
+                <span class="tutorial-arrow">&rarr;</span>
+            </div>
+        </a>
+
+    </div>
+
+    <div class="cta-section">
+        <a href="https://choose-my-stat.vercel.app" class="cta-btn">Open ChooseMyStat App</a>
+        <p class="cta-sub">Try it yourself &mdash; no login required</p>
+    </div>
+
+</div>
+
+<footer>
+    <p>ChooseMyStat Tutorials &mdash; Created for the <a href="https://drpakhare.github.io/sap-sample-size-workshop/" target="_blank">SAP &amp; Sample Size Workshop</a></p>
+    <p style="margin-top:6px;">&copy; 2026 <a href="https://choose-my-stat.vercel.app">ChooseMyStat</a>. All rights reserved.</p>
+</footer>
+
+</body>
+</html>

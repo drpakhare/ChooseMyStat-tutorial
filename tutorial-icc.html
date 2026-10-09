@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tutorial 5: ICC &mdash; Inter-rater Reliability of Fundoscopy Grading | ChooseMyStat</title>
+    <style>
+        :root {
+            --purple: #5B5FC7;
+            --purple-light: #EDEDFA;
+            --purple-dark: #4547A9;
+            --green: #2D8A4E;
+            --green-light: #E6F4EC;
+            --green-dark: #1F6B3A;
+            --text: #1E293B;
+            --text-secondary: #475569;
+            --bg: #FAFBFC;
+            --card-bg: #FFFFFF;
+            --border: #E2E8F0;
+            --shadow: 0 2px 8px rgba(0,0,0,0.08);
+            --shadow-md: 0 4px 16px rgba(0,0,0,0.10);
+            --radius: 12px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            color: var(--text);
+            background: var(--bg);
+            line-height: 1.7;
+            font-size: 16px;
+        }
+
+        .top-nav {
+            background: var(--purple);
+            color: #fff;
+            padding: 14px 24px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 8px rgba(91,95,199,0.25);
+        }
+
+        .top-nav-inner {
+            max-width: 860px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .top-nav a {
+            color: #fff;
+            text-decoration: none;
+            font-size: 14px;
+            opacity: 0.9;
+            transition: opacity 0.2s;
+        }
+
+        .top-nav a:hover {
+            opacity: 1;
+            text-decoration: underline;
+        }
+
+        .top-nav .brand {
+            font-weight: 700;
+            font-size: 16px;
+            opacity: 1;
+            letter-spacing: 0.02em;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 32px 20px 60px;
+        }
+
+        .tutorial-header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 32px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .tutorial-label {
+            display: inline-block;
+            background: var(--purple-light);
+            color: var(--purple);
+            font-weight: 600;
+            font-size: 13px;
+            padding: 4px 14px;
+            border-radius: 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-bottom: 16px;
+        }
+
+        .tutorial-header h1 {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--text);
+            margin-bottom: 12px;
+            line-height: 1.25;
+        }
+
+        .tutorial-header h1 span {
+            color: var(--purple);
+        }
+
+        .tutorial-header .subtitle {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .scenario-card {
+            background: linear-gradient(135deg, var(--purple-light) 0%, #f0f0ff 100%);
+            border-left: 5px solid var(--purple);
+            border-radius: var(--radius);
+            padding: 28px 28px 24px;
+            margin-bottom: 40px;
+        }
+
+        .scenario-card h2 {
+            font-size: 1.25rem;
+            color: var(--purple-dark);
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .scenario-card p {
+            margin-bottom: 10px;
+            color: var(--text);
+        }
+
+        .scenario-card ul {
+            list-style: none;
+            padding: 0;
+            margin-top: 12px;
+        }
+
+        .scenario-card ul li {
+            padding: 4px 0 4px 24px;
+            position: relative;
+            color: var(--text-secondary);
+        }
+
+        .scenario-card ul li::before {
+            content: "\2713";
+            position: absolute;
+            left: 0;
+            color: var(--green);
+            font-weight: 700;
+        }
+
+        .step {
+            margin-bottom: 44px;
+        }
+
+        .step-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .step-badge {
+            flex-shrink: 0;
+            width: 44px;
+            height: 44px;
+            background: var(--purple);
+            color: #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 18px;
+            box-shadow: 0 2px 8px rgba(91,95,199,0.3);
+        }
+
+        .step-badge.green {
+            background: var(--green);
+            box-shadow: 0 2px 8px rgba(45,138,78,0.3);
+        }
+
+        .step-header h2 {
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-top: 6px;
+        }
+
+        .step-header h2 .highlight {
+            color: var(--purple);
+        }
+
+        .step-body {
+            padding-left: 60px;
+        }
+
+        .step-body p {
+            margin-bottom: 12px;
+            color: var(--text-secondary);
+        }
+
+        .step-body p strong {
+            color: var(--text);
+        }
+
+        .action-box {
+            background: var(--green-light);
+            border: 1px solid #b6dfc5;
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin: 14px 0;
+            font-size: 15px;
+            color: var(--green-dark);
+            font-weight: 500;
+        }
+
+        .action-box::before {
+            content: "\25B6  ";
+            font-size: 12px;
+        }
+
+        .tip-box {
+            background: #FFF8ED;
+            border: 1px solid #F5DEB3;
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin: 14px 0;
+            font-size: 14.5px;
+            color: #7A5D1E;
+        }
+
+        .tip-box strong {
+            color: #5C4415;
+        }
+
+        .screenshot-wrapper {
+            margin: 18px 0 8px;
+            text-align: center;
+        }
+
+        .screenshot-wrapper img {
+            max-width: 100%;
+            border-radius: 10px;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border);
+        }
+
+        .screenshot-caption {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-top: 8px;
+            font-style: italic;
+        }
+
+        .result-card {
+            background: var(--card-bg);
+            border: 2px solid var(--green);
+            border-radius: var(--radius);
+            padding: 24px;
+            margin: 20px 0;
+        }
+
+        .result-card h3 {
+            color: var(--green);
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+
+        .result-card p {
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .result-card .result-stat {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--green-dark);
+            margin: 8px 0;
+        }
+
+        .deliverables {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+            margin: 16px 0;
+        }
+
+        .deliverable-item {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 18px;
+            transition: box-shadow 0.2s;
+        }
+
+        .deliverable-item:hover {
+            box-shadow: var(--shadow);
+        }
+
+        .deliverable-item h4 {
+            font-size: 15px;
+            color: var(--purple);
+            margin-bottom: 6px;
+        }
+
+        .deliverable-item p {
+            font-size: 13.5px;
+            color: var(--text-secondary);
+            margin: 0;
+        }
+
+        .takeaways {
+            background: linear-gradient(135deg, var(--green-light) 0%, #f0faf4 100%);
+            border-left: 5px solid var(--green);
+            border-radius: var(--radius);
+            padding: 28px;
+            margin: 36px 0;
+        }
+
+        .takeaways h2 {
+            color: var(--green-dark);
+            font-size: 1.25rem;
+            margin-bottom: 16px;
+        }
+
+        .takeaways ol {
+            padding-left: 20px;
+        }
+
+        .takeaways ol li {
+            margin-bottom: 12px;
+            color: var(--text);
+        }
+
+        .takeaways ol li strong {
+            color: var(--green-dark);
+        }
+
+        .cta-section {
+            text-align: center;
+            margin: 44px 0 36px;
+            padding: 32px 20px;
+            background: var(--purple-light);
+            border-radius: var(--radius);
+        }
+
+        .cta-section p {
+            font-size: 1.05rem;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background: var(--purple);
+            color: #fff;
+            text-decoration: none;
+            padding: 14px 36px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 16px;
+            transition: background 0.2s, transform 0.1s;
+            box-shadow: 0 2px 8px rgba(91,95,199,0.3);
+        }
+
+        .cta-button:hover {
+            background: var(--purple-dark);
+            transform: translateY(-1px);
+        }
+
+        .other-tutorials {
+            border-top: 2px solid var(--border);
+            padding-top: 32px;
+            margin-top: 36px;
+        }
+
+        .other-tutorials h3 {
+            font-size: 1.1rem;
+            color: var(--text);
+            margin-bottom: 16px;
+        }
+
+        .tutorial-links {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .tutorial-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 18px;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            text-decoration: none;
+            color: var(--text);
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .tutorial-link:hover {
+            border-color: var(--purple);
+            box-shadow: var(--shadow);
+        }
+
+        .tutorial-link .tl-num {
+            width: 32px;
+            height: 32px;
+            background: var(--purple-light);
+            color: var(--purple);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        .tutorial-link .tl-num.current {
+            background: var(--purple);
+            color: #fff;
+        }
+
+        .tutorial-link .tl-text {
+            font-size: 14.5px;
+        }
+
+        .tutorial-link .tl-text .tl-title {
+            font-weight: 600;
+        }
+
+        .tutorial-link .tl-text .tl-stat {
+            color: var(--text-secondary);
+            font-size: 13px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 32px 20px;
+            margin-top: 24px;
+            border-top: 1px solid var(--border);
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        footer a {
+            color: var(--purple);
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 640px) {
+            .tutorial-header h1 {
+                font-size: 1.55rem;
+            }
+
+            .step-body {
+                padding-left: 0;
+                margin-top: 10px;
+            }
+
+            .step-header {
+                gap: 12px;
+            }
+
+            .deliverables {
+                grid-template-columns: 1fr;
+            }
+
+            .scenario-card,
+            .takeaways {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Top Navigation -->
+    <nav class="top-nav">
+        <div class="top-nav-inner">
+            <a href="index.html" class="brand">ChooseMyStat Tutorials</a>
+            <a href="https://choose-my-stat.vercel.app" target="_blank" rel="noopener">Open the App &rarr;</a>
+        </div>
+    </nav>
+
+    <div class="container">
+
+        <!-- Tutorial Header -->
+        <header class="tutorial-header">
+            <div class="tutorial-label">Tutorial 5</div>
+            <h1>Inter-rater Reliability of<br>Fundoscopy Grading<br><span>Intraclass Correlation Coefficient (ICC)</span></h1>
+            <p class="subtitle">
+                Walk through ChooseMyStat to choose the right reliability measure and calculate the sample size for an inter-rater agreement study of diabetic retinopathy severity scoring.
+            </p>
+        </header>
+
+        <!-- Study Scenario -->
+        <section class="scenario-card">
+            <h2>Study Scenario</h2>
+            <p>
+                Dr. Nair, a senior resident in Ophthalmology, is conducting a reliability study at a tertiary eye centre. Two ophthalmologists independently grade <strong>diabetic retinopathy severity</strong> using standardised fundoscopy images. Each image receives a <strong>continuous severity score from 0 to 100</strong> based on the extent and severity of microaneurysms, haemorrhages, exudates, and neovascularisation.
+            </p>
+            <p>
+                The goal is to assess <strong>inter-rater reliability</strong> &mdash; how consistently the two ophthalmologists assign scores to the same set of images. Before these severity scores can be used in a clinical trial, the measurement tool must demonstrate adequate reliability.
+            </p>
+            <ul>
+                <li><strong>Measurement:</strong> Diabetic retinopathy severity score (0&ndash;100) &mdash; continuous</li>
+                <li><strong>Raters:</strong> 2 ophthalmologists (fixed, same raters for all images)</li>
+                <li><strong>Design:</strong> Each image graded independently by both raters (blinded)</li>
+                <li><strong>Expected ICC:</strong> 0.80 (good to excellent agreement)</li>
+                <li><strong>Null ICC (H<sub>0</sub>):</strong> 0.50 (fair agreement &mdash; clinically unacceptable)</li>
+                <li><strong>Significance level (&alpha;):</strong> 0.05</li>
+                <li><strong>Power:</strong> 80%</li>
+            </ul>
+        </section>
+
+        <!-- Step 1: Open the app -->
+        <section class="step">
+            <div class="step-header">
+                <div class="step-badge">1</div>
+                <h2>Open the App and <span class="highlight">Choose a Pathway</span></h2>
+            </div>
+            <div class="step-body">
+                <p>
+                    Go to <a href="https://choose-my-stat.vercel.app" target="_blank" rel="noopener"><strong>choose-my-stat.vercel.app</strong></a> and click <strong>"Choose a Statistical Test"</strong>.
+                </p>
+                <p>
+                    This time, we are <em>not</em> comparing groups or studying an association. We are assessing <strong>agreement between raters</strong>. The app has a dedicated pathway for this.
+                </p>
+
+                <div class="action-box">
+                    Click <strong>"Agreement / Reliability"</strong> to start the reliability decision tree.
+                </div>
+
+                <div class="tip-box">
+                    <strong>Agreement vs. Correlation:</strong> Do not confuse reliability with correlation. Two raters can have a perfect Pearson correlation (r = 1.0) yet disagree systematically &mdash; for example, if Rater B always scores 20 points higher than Rater A. Pearson's r captures the <em>linear relationship</em> but ignores the absolute level of agreement. The ICC captures both &mdash; it penalises systematic differences between raters. This is why ICC, not Pearson's r, is the correct measure for inter-rater reliability.
+                </div>
+            </div>
+        </section>
+
+        <!-- Step 2: Measurement type -->
+        <section class="step">
+            <div class="step-header">
+                <div class="step-badge">2</div>
+                <h2>Step 1 in the App: <span class="highlight">Measurement Type</span></h2>
+            </div>
+            <div class="step-body">
+                <p>
+                    The first question in the Agreement pathway asks: <strong>"What type of measurement are you assessing?"</strong>
+                </p>
+                <p>
+                    Our severity score (0&ndash;100) is a <strong>continuous measurement</strong>. If instead the raters were assigning categorical grades (e.g., no DR / mild NPDR / moderate NPDR / severe NPDR / PDR), we would choose "Categorical" and the app would recommend Cohen's Kappa or weighted Kappa.
+                </p>
+
+                <div class="action-box">
+                    Select <strong>"Continuous measurement"</strong>.
+                </div>
+
+                <div class="screenshot-wrapper">
+                    <img src="images/05-agreement-step1.jpg" alt="Agreement pathway: selecting continuous measurement type">
+                    <div class="screenshot-caption">Select "Continuous measurement" for the 0&ndash;100 severity score</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Step 3: Type of reliability -->
+        <section class="step">
+            <div class="step-header">
+                <div class="step-badge">3</div>
+                <h2>Step 2 in the App: <span class="highlight">Rater / Test-Retest Reliability</span></h2>
+            </div>
+            <div class="step-body">
+                <p>
+                    The app asks: <strong>"What type of reliability are you assessing?"</strong>
+                </p>
+                <p>
+                    We are assessing <strong>inter-rater reliability</strong> &mdash; whether two different raters agree when measuring the same subjects. This is distinct from test-retest reliability (same rater, two time points) or internal consistency (multiple items on a questionnaire).
+                </p>
+
+                <div class="action-box">
+                    Select <strong>"Rater / Test-Retest Reliability"</strong>.
+                </div>
+
+                <div class="tip-box">
+                    <strong>ICC works for both inter-rater and test-retest:</strong> The ICC framework handles both situations. For inter-rater reliability, the "raters" are two different people measuring the same subjects. For test-retest reliability, the "raters" are the same person (or same instrument) at two different time points. The choice between ICC types (see below) depends on whether the raters are considered fixed or randomly sampled from a population of potential raters.
+                </div>
+            </div>
+        </section>
+
+        <!-- Step 4: The Result -->
+        <section class="step">
+            <div class="step-header">
+                <div class="step-badge green">4</div>
+                <h2><span class="highlight" style="color: var(--green);">The Result:</span> Intraclass Correlation Coefficient (ICC)</h2>
+            </div>
+            <div class="step-body">
+                <p>
+                    The app recommends the <strong>Intraclass Correlation Coefficient (ICC)</strong> as the appropriate reliability measure for continuous data with two or more raters.
+                </p>
+
+                <div class="screenshot-wrapper">
+                    <img src="images/05-result.jpg" alt="Result page showing ICC recommended">
+                    <div class="screenshot-caption">ChooseMyStat recommends the Intraclass Correlation Coefficient (ICC)</div>
+                </div>
+
+                <div class="result-card">
+                    <h3>Understanding ICC Types</h3>
+                    <p>
+                        The ICC has several variants depending on the study design. The three most common (Shrout &amp; Fleiss 1979 notation) are:
+                    </p>
+                    <p>
+                        <strong>ICC(1,1):</strong> Each subject is measured by a <em>different</em> set of randomly selected raters. Rarely used in clinical research (applicable in large screening programmes where each image is read by a random pair of readers).
+                    </p>
+                    <p>
+                        <strong>ICC(2,1):</strong> Each subject is measured by the <em>same</em> set of raters, and the raters are considered a <strong>random sample</strong> from a larger population of potential raters. Use this when you want to generalise beyond the specific raters in your study. This is the most commonly recommended form for clinical reliability studies.
+                    </p>
+                    <p>
+                        <strong>ICC(3,1):</strong> Each subject is measured by the <em>same</em> set of raters, and the raters are considered <strong>fixed</strong> (the only raters of interest). Use this when results apply only to these specific raters. It assesses <em>consistency</em> (relative agreement) rather than absolute agreement.
+                    </p>
+                </div>
+
+                <div class="tip-box">
+                    <strong>For this study:</strong> Since both ophthalmologists grade <em>all</em> images and Dr. Nair wants to generalise (i.e., the findings should apply to other similarly trained ophthalmologists, not just these two), <strong>ICC(2,1)</strong> with absolute agreement is the appropriate choice.
+                </div>
+
+                <div class="result-card">
+                    <h3>Agreement vs. Consistency</h3>
+                    <p>
+                        <strong>Absolute agreement:</strong> Requires raters to assign the <em>same scores</em> to the same images. Penalises systematic differences (e.g., Rater B always scoring 10 points higher).
+                    </p>
+                    <p>
+                        <strong>Consistency:</strong> Only requires the raters to <em>rank</em> images in the same order. Does not penalise systematic offsets. Use this when the absolute level is less important than the relative ordering.
+                    </p>
+                    <p>
+                        For clinical grading where the actual score matters (e.g., treatment decisions depend on the severity score), choose <strong>absolute agreement</strong>.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Step 5: Sample Size Calculation -->
+        <section class="step">
+            <div class="step-header">
+                <div class="step-badge green">5</div>
+                <h2><span class="highlight" style="color: var(--green);">Sample Size Calculation</span></h2>
+            </div>
+            <div class="step-body">
+                <p>
+                    Sample size for ICC studies is based on testing whether the ICC exceeds a specified null value. The calculation depends on the expected ICC (&rho;<sub>1</sub>), the null ICC (&rho;<sub>0</sub>), the number of raters (k), and the desired power.
+                </p>
+
+                <div style="overflow-x: auto; margin: 16px 0;">
+                    <table style="width: 100%; border-collapse: collapse; font-size: 15px;">
+                        <thead>
+                            <tr style="background: var(--purple-light);">
+                                <th style="text-align: left; padding: 10px 14px; border-bottom: 2px solid var(--purple); color: var(--purple-dark);">Parameter</th>
+                                <th style="text-align: left; padding: 10px 14px; border-bottom: 2px solid var(--purple); color: var(--purple-dark);">Value</th>
+                                <th style="text-align: left; padding: 10px 14px; border-bottom: 2px solid var(--purple); color: var(--purple-dark);">Why?</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td style="padding: 10px 14px; border-bottom: 1px solid var(--border);">Expected ICC (&rho;<sub>1</sub>)</td>
+                                <td style="padding: 10px 14px; border-bottom: 1px solid var(--border);"><strong>0.80</strong></td>
+                                <td style="padding: 10px 14px; border-bottom: 1px solid var(--border);">Good to excellent agreement based on similar fundoscopy reliability studies</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px 14px; border-bottom: 1px solid var(--border);">Null ICC (&rho;<sub>0</sub>)</td>
+                                <td style="padding: 10px 14px; border-bottom: 1px solid var(--border);"><strong>0.50</strong></td>
+                                <td style="padding: 10px 14px; border-bottom: 1px solid var(--border);">Fair agreement &mdash; the minimum unacceptable level for clinical use</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px 14px; border-bottom: 1px solid var(--border);">Number of raters (k)</td>
+                                <td style="padding: 10px 14px; border-bottom: 1px solid var(--border);"><strong>2</strong></td>
+                                <td style="padding: 10px 14px; border-bottom: 1px solid var(--border);">Two ophthalmologists grading each image</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px 14px; border-bottom: 1px solid var(--border);">Alpha (&alpha;)</td>
+                                <td style="padding: 10px 14px; border-bottom: 1px solid var(--border);"><strong>0.05</strong></td>
+                                <td style="padding: 10px 14px; border-bottom: 1px solid var(--border);">One-sided test (we test H<sub>0</sub>: ICC &le; 0.50 vs. H<sub>1</sub>: ICC &gt; 0.50)</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px 14px; border-bottom: 1px solid var(--border);">Power (1 &minus; &beta;)</td>
+                                <td style="padding: 10px 14px; border-bottom: 1px solid var(--border);"><strong>80%</strong></td>
+                                <td style="padding: 10px 14px; border-bottom: 1px solid var(--border);">Conventional power</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px 14px;">Dropout / unusable images</td>
+                                <td style="padding: 10px 14px;"><strong>10%</strong></td>
+                                <td style="padding: 10px 14px;">Some fundoscopy images may be of insufficient quality for grading</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="result-card">
+                    <h3>Sample Size Result</h3>
+                    <p>Using Walter et al. (1998) formula for ICC sample size with &rho;<sub>0</sub> = 0.50, &rho;<sub>1</sub> = 0.80, k = 2 raters, &alpha; = 0.05 (one-sided), power = 80%:</p>
+                    <div class="result-stat">n = 19 subjects (images) &rarr; N = 22 (with 10% unusable images)</div>
+                    <p>
+                        You need <strong>19 fundoscopy images</strong> graded by both ophthalmologists to test whether the ICC exceeds 0.50 with 80% power. After adding 10% for unusable images, <strong>collect 22 images</strong>.
+                    </p>
+                </div>
+
+                <div class="tip-box">
+                    <strong>Why so few subjects?</strong> ICC sample sizes are typically much smaller than those for comparative studies because: (a) each subject contributes multiple measurements (one per rater), and (b) the effect size (the difference between the expected and null ICC) is often large. An expected ICC of 0.80 vs. a null of 0.50 is a substantial difference. If the null were 0.70 instead of 0.50, the required sample size would increase considerably because the effect to be detected would be smaller.
+                </div>
+
+                <div class="tip-box">
+                    <strong>Choosing the null ICC (&rho;<sub>0</sub>):</strong> The null ICC represents the threshold below which reliability is considered <em>unacceptable</em> for clinical use. Cicchetti's (1994) benchmarks provide guidance: ICC &lt; 0.40 is poor, 0.40&ndash;0.59 is fair, 0.60&ndash;0.74 is good, and &ge; 0.75 is excellent. Setting &rho;<sub>0</sub> = 0.50 means we want to reject the possibility that reliability is merely "fair" and demonstrate that it reaches at least "good" levels.
+                </div>
+            </div>
+        </section>
+
+        <!-- Step 6: What You Get -->
+        <section class="step">
+            <div class="step-header">
+                <div class="step-badge green">6</div>
+                <h2><span class="highlight" style="color: var(--green);">What You Get</span> from ChooseMyStat</h2>
+            </div>
+            <div class="step-body">
+                <p>
+                    ChooseMyStat provides several ready-to-use outputs for your reliability study:
+                </p>
+
+                <div class="deliverables">
+                    <div class="deliverable-item">
+                        <h4>SAP Template</h4>
+                        <p>A pre-written paragraph describing the ICC analysis plan, specifying the ICC type, agreement definition, and interpretation benchmarks.</p>
+                    </div>
+                    <div class="deliverable-item">
+                        <h4>Results Example</h4>
+                        <p>A template showing how to report ICC results: point estimate, 95% CI, and qualitative interpretation using Cicchetti's benchmarks.</p>
+                    </div>
+                    <div class="deliverable-item">
+                        <h4>R Code</h4>
+                        <p>Ready-to-run R code using the irr package (icc function) for computing ICC with confidence intervals and selecting the correct ICC type.</p>
+                    </div>
+                    <div class="deliverable-item">
+                        <h4>Bland-Altman Guide</h4>
+                        <p>Guidance on supplementing the ICC with a Bland-Altman plot &mdash; a visual method for assessing agreement that shows the bias and limits of agreement between the two raters.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Key Takeaways -->
+        <section class="takeaways">
+            <h2>Key Takeaways</h2>
+            <ol>
+                <li>
+                    <strong>ICC, not Pearson's r, for reliability:</strong> Pearson's correlation measures linear association but ignores systematic differences between raters. Two raters with perfect correlation (r = 1.0) may still disagree by a constant offset. The ICC captures both the correlation and the absolute agreement, making it the correct choice for reliability assessment.
+                </li>
+                <li>
+                    <strong>Know your ICC type:</strong> ICC(1,1) is for different random raters per subject; ICC(2,1) is for the same raters (random factor) rating all subjects &mdash; this is the most common choice; ICC(3,1) is for the same raters (fixed factor) &mdash; assesses consistency only. For most clinical reliability studies, <strong>ICC(2,1) with absolute agreement</strong> is appropriate.
+                </li>
+                <li>
+                    <strong>Cicchetti's ICC benchmarks:</strong> Poor &lt; 0.40, Fair 0.40&ndash;0.59, Good 0.60&ndash;0.74, Excellent &ge; 0.75. For a clinical measurement to be considered reliable enough for research or clinical use, an ICC of at least 0.75 (excellent) is generally expected. For screening purposes, 0.60&ndash;0.74 (good) may be acceptable.
+                </li>
+                <li>
+                    <strong>Supplement ICC with a Bland-Altman plot:</strong> While the ICC gives a single summary number, a Bland-Altman plot visualises the agreement by plotting the difference between raters against the mean of the two scores for each subject. This reveals patterns that the ICC cannot show: systematic bias (one rater consistently scoring higher), proportional bias (disagreement increasing with higher scores), and outliers.
+                </li>
+                <li>
+                    <strong>ICC sample sizes are typically small:</strong> Reliability studies often need only 15&ndash;30 subjects because each subject contributes multiple measurements (one per rater). This makes reliability studies highly feasible, even with limited resources. However, ensure adequate variability in the subjects &mdash; if all fundoscopy images show the same severity, the ICC will be artificially low (restriction of range).
+                </li>
+            </ol>
+        </section>
+
+        <!-- Try it yourself CTA -->
+        <section class="cta-section">
+            <p>Ready to find the right test for <em>your</em> study?</p>
+            <a href="https://choose-my-stat.vercel.app" target="_blank" rel="noopener" class="cta-button">
+                Try ChooseMyStat Yourself
+            </a>
+        </section>
+
+        <!-- Other Tutorials -->
+        <section class="other-tutorials">
+            <h3>All Tutorials in This Series</h3>
+            <div class="tutorial-links">
+                <a href="tutorial-paired-ttest.html" class="tutorial-link">
+                    <div class="tl-num">1</div>
+                    <div class="tl-text">
+                        <div class="tl-title">Effect of Yoga on Blood Pressure</div>
+                        <div class="tl-stat">Paired t-test</div>
+                    </div>
+                </a>
+                <a href="tutorial-correlation.html" class="tutorial-link">
+                    <div class="tl-num">2</div>
+                    <div class="tl-text">
+                        <div class="tl-title">BMI and HbA1c Correlation in Type 2 Diabetes</div>
+                        <div class="tl-stat">Pearson / Spearman Correlation</div>
+                    </div>
+                </a>
+                <a href="tutorial-anova.html" class="tutorial-link">
+                    <div class="tl-num">3</div>
+                    <div class="tl-text">
+                        <div class="tl-title">Comparing HbA1c Across Three Diabetes Regimens</div>
+                        <div class="tl-stat">One-Way ANOVA</div>
+                    </div>
+                </a>
+                <a href="tutorial-logistic-regression.html" class="tutorial-link">
+                    <div class="tl-num">4</div>
+                    <div class="tl-text">
+                        <div class="tl-title">Risk Factors for Preeclampsia</div>
+                        <div class="tl-stat">Chi-Square + Logistic Regression</div>
+                    </div>
+                </a>
+                <a href="tutorial-icc.html" class="tutorial-link" style="border-color: var(--purple); background: var(--purple-light);">
+                    <div class="tl-num current">5</div>
+                    <div class="tl-text">
+                        <div class="tl-title">Inter-rater Reliability of Fundoscopy Grading</div>
+                        <div class="tl-stat">Intraclass Correlation Coefficient (ICC) &bull; You are here</div>
+                    </div>
+                </a>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>
+            <strong>ChooseMyStat Tutorials</strong> &mdash; AIIMS Bhopal, Clinical Epidemiology Unit
+        </p>
+        <p style="margin-top: 6px;">
+            <a href="index.html">Back to Tutorial Index</a> &nbsp;&middot;&nbsp;
+            <a href="https://choose-my-stat.vercel.app" target="_blank" rel="noopener">Open ChooseMyStat</a>
+        </p>
+    </footer>
+
+</body>
+</html>

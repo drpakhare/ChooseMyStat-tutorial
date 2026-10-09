@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tutorial 3: One-Way ANOVA &mdash; Comparing HbA1c Across Three Diabetes Regimens | ChooseMyStat</title>
+    <style>
+        :root {
+            --purple: #5B5FC7;
+            --purple-light: #EDEDFA;
+            --purple-dark: #4547A9;
+            --green: #2D8A4E;
+            --green-light: #E6F4EC;
+            --green-dark: #1F6B3A;
+            --text: #1E293B;
+            --text-secondary: #475569;
+            --bg: #FAFBFC;
+            --card-bg: #FFFFFF;
+            --border: #E2E8F0;
+            --shadow: 0 2px 8px rgba(0,0,0,0.08);
+            --shadow-md: 0 4px 16px rgba(0,0,0,0.10);
+            --radius: 12px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            color: var(--text);
+            background: var(--bg);
+            line-height: 1.7;
+            font-size: 16px;
+        }
+
+        .top-nav {
+            background: var(--purple);
+            color: #fff;
+            padding: 14px 24px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 8px rgba(91,95,199,0.25);
+        }
+
+        .top-nav-inner {
+            max-width: 860px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .top-nav a {
+            color: #fff;
+            text-decoration: none;
+            font-size: 14px;
+            opacity: 0.9;
+            transition: opacity 0.2s;
+        }
+
+        .top-nav a:hover {
+            opacity: 1;
+            text-decoration: underline;
+        }
+
+        .top-nav .brand {
+            font-weight: 700;
+            font-size: 16px;
+            opacity: 1;
+            letter-spacing: 0.02em;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 32px 20px 60px;
+        }
+
+        .tutorial-header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 32px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .tutorial-label {
+            display: inline-block;
+            background: var(--purple-light);
+            color: var(--purple);
+            font-weight: 600;
+            font-size: 13px;
+            padding: 4px 14px;
+            border-radius: 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-bottom: 16px;
+        }
+
+        .tutorial-header h1 {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--text);
+            margin-bottom: 12px;
+            line-height: 1.25;
+        }
+
+        .tutorial-header h1 span {
+            color: var(--purple);
+        }
+
+        .tutorial-header .subtitle {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .scenario-card {
+            background: linear-gradient(135deg, var(--purple-light) 0%, #f0f0ff 100%);
+            border-left: 5px solid var(--purple);
+            border-radius: var(--radius);
+            padding: 28px 28px 24px;
+            margin-bottom: 40px;
+        }
+
+        .scenario-card h2 {
+            font-size: 1.25rem;
+            color: var(--purple-dark);
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .scenario-card p {
+            margin-bottom: 10px;
+            color: var(--text);
+        }
+
+        .scenario-card ul {
+            list-style: none;
+            padding: 0;
+            margin-top: 12px;
+        }
+
+        .scenario-card ul li {
+            padding: 4px 0 4px 24px;
+            position: relative;
+            color: var(--text-secondary);
+        }
+
+        .scenario-card ul li::before {
+            content: "\2713";
+            position: absolute;
+            left: 0;
+            color: var(--green);
+            font-weight: 700;
+        }
+
+        .step {
+            margin-bottom: 44px;
+        }
+
+        .step-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .step-badge {
+            flex-shrink: 0;
+            width: 44px;
+            height: 44px;
+            background: var(--purple);
+            color: #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 18px;
+            box-shadow: 0 2px 8px rgba(91,95,199,0.3);
+        }
+
+        .step-badge.green {
+            background: var(--green);
+            box-shadow: 0 2px 8px rgba(45,138,78,0.3);
+        }
+
+        .step-header h2 {
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-top: 6px;
+        }
+
+        .step-header h2 .highlight {
+            color: var(--purple);
+        }
+
+        .step-body {
+            padding-left: 60px;
+        }
+
+        .step-body p {
+            margin-bottom: 12px;
+            color: var(--text-secondary);
+        }
+
+        .step-body p strong {
+            color: var(--text);
+        }
+
+        .action-box {
+            background: var(--green-light);
+            border: 1px solid #b6dfc5;
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin: 14px 0;
+            font-size: 15px;
+            color: var(--green-dark);
+            font-weight: 500;
+        }
+
+        .action-box::before {
+            content: "\25B6  ";
+            font-size: 12px;
+        }
+
+        .tip-box {
+            background: #FFF8ED;
+            border: 1px solid #F5DEB3;
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin: 14px 0;
+            font-size: 14.5px;
+            color: #7A5D1E;
+        }
+
+        .tip-box strong {
+            color: #5C4415;
+        }
+
+        .screenshot-wrapper {
+            margin: 18px 0 8px;
+            text-align: center;
+        }
+
+        .screenshot-wrapper img {
+            max-width: 100%;
+            border-radius: 10px;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border);
+        }
+
+        .screenshot-caption {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-top: 8px;
+            font-style: italic;
+        }
+
+        .result-card {
+            background: var(--card-bg);
+            border: 2px solid var(--green);
+            border-radius: var(--radius);
+            padding: 24px;
+            margin: 20px 0;
+        }
+
+        .result-card h3 {
+            color: var(--green);
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+
+        .result-card p {
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .result-card .result-stat {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--green-dark);
+            margin: 8px 0;
+        }
+
+        .deliverables {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+            margin: 16px 0;
+        }
+
+        .deliverable-item {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 18px;
+            transition: box-shadow 0.2s;
+        }
+
+        .deliverable-item:hover {
+            box-shadow: var(--shadow);
+        }
+
+        .deliverable-item h4 {
+            font-size: 15px;
+            color: var(--purple);
+            margin-bottom: 6px;
+        }
+
+        .deliverable-item p {
+            font-size: 13.5px;
+            color: var(--text-secondary);
+            margin: 0;
+        }
+
+        .takeaways {
+            background: linear-gradient(135deg, var(--green-light) 0%, #f0faf4 100%);
+            border-left: 5px solid var(--green);
+            border-radius: var(--radius);
+            padding: 28px;
+            margin: 36px 0;
+        }
+
+        .takeaways h2 {
+            color: var(--green-dark);
+            font-size: 1.25rem;
+            margin-bottom: 16px;
+        }
+
+        .takeaways ol {
+            padding-left: 20px;
+        }
+
+        .takeaways ol li {
+            margin-bottom: 12px;
+            color: var(--text);
+        }
+
+        .takeaways ol li strong {
+            color: var(--green-dark);
+        }
+
+        .cta-section {
+            text-align: center;
+            margin: 44px 0 36px;
+            padding: 32px 20px;
+            background: var(--purple-light);
+            border-radius: var(--radius);
+        }
+
+        .cta-section p {
+            font-size: 1.05rem;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background: var(--purple);
+            color: #fff;
+            text-decoration: none;
+            padding: 14px 36px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 16px;
+            transition: background 0.2s, transform 0.1s;
+            box-shadow: 0 2px 8px rgba(91,95,199,0.3);
+        }
+
+        .cta-button:hover {
+            background: var(--purple-dark);
+            transform: translateY(-1px);
+        }
+
+        .other-tutorials {
+            border-top: 2px solid var(--border);
+            padding-top: 32px;
+            margin-top: 36px;
+        }
+
+        .other-tutorials h3 {
+            font-size: 1.1rem;
+            color: var(--text);
+            margin-bottom: 16px;
+        }
+
+        .tutorial-links {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .tutorial-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 18px;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            text-decoration: none;
+            color: var(--text);
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .tutorial-link:hover {
+            border-color: var(--purple);
+            box-shadow: var(--shadow);
+        }
+
+        .tutorial-link .tl-num {
+            width: 32px;
+            height: 32px;
+            background: var(--purple-light);
+            color: var(--purple);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        .tutorial-link .tl-num.current {
+            background: var(--purple);
+            color: #fff;
+        }
+
+        .tutorial-link .tl-text {
+            font-size: 14.5px;
+        }
+
+        .tutorial-link .tl-text .tl-title {
+            font-weight: 600;
+        }
+
+        .tutorial-link .tl-text .tl-stat {
+            color: var(--text-secondary);
+            font-size: 13px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 32px 20px;
+            margin-top: 24px;
+            border-top: 1px solid var(--border);
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        footer a {
+            color: var(--purple);
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 640px) {
+            .tutorial-header h1 {
+                font-size: 1.55rem;
+            }
+
+            .step-body {
+                padding-left: 0;
+                margin-top: 10px;
+            }
+
+            .step-header {
+                gap: 12px;
+            }
+
+            .deliverables {
+                grid-template-columns: 1fr;
+            }
+
+            .scenario-card,
+            .takeaways {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Top Navigation -->
+    <nav class="top-nav">
+        <div class="top-nav-inner">
+            <a href="index.html" class="brand">ChooseMyStat Tutorials</a>
+            <a href="https://choose-my-stat.vercel.app" target="_blank" rel="noopener">Open the App &rarr;</a>
+        </div>
+    </nav>
+
+    <div class="container">
+
+        <!-- Tutorial Header -->
+        <header class="tutorial-header">
+            <div class="tutorial-label">Tutorial 3</div>
+            <h1>Comparing HbA1c Across Three<br>Diabetes Management Regimens<br><span>One-Way ANOVA</span></h1>
+            <p class="subtitle">
+                Walk through ChooseMyStat to choose the right test and calculate the sample size for comparing HbA1c reduction across three oral hypoglycaemic regimens.
+            </p>
+        </header>
+
+        <!-- Study Scenario -->
+        <section class="scenario-card">
+            <h2>Study Scenario</h2>
+            <p>
+                Dr. Kulkarni, an endocrinologist at a medical college hospital, is designing a randomised trial comparing <strong>HbA1c reduction</strong> across three oral hypoglycaemic regimens in newly diagnosed T2DM patients:
+            </p>
+            <ul>
+                <li><strong>Group 1:</strong> Metformin monotherapy (standard care)</li>
+                <li><strong>Group 2:</strong> Metformin + Glimepiride (sulphonylurea combination)</li>
+                <li><strong>Group 3:</strong> Metformin + Vildagliptin (DPP-4 inhibitor combination)</li>
+            </ul>
+            <p>
+                Based on head-to-head trials in Indian populations (e.g., Bose et al. 2014, Kalra et al. 2015), the expected effect size is <strong>moderate</strong> &mdash; Cohen's f &asymp; 0.30, corresponding to &eta;&sup2; &asymp; 0.08. The primary outcome is <strong>change in HbA1c (%)</strong> from baseline to 24 weeks.
+            </p>
+            <ul>
+                <li><strong>Outcome:</strong> Change in HbA1c (%) from baseline to 24 weeks &mdash; continuous</li>
+                <li><strong>Design:</strong> Three independent parallel groups (randomised)</li>
+                <li><strong>Expected effect size:</strong> Cohen's f = 0.30 (&eta;&sup2; = 0.08)</li>
+                <li><strong>Significance level (&alpha;):</strong> 0.05</li>
+                <li><strong>Power:</strong> 80%</li>
+            </ul>
+        </section>
+
+        <!-- Step 1: Open the app -->
+        <section class="step">
+            <div class="step-header">
+                <div class="step-badge">1</div>
+                <h2>Open the App and <span class="highlight">Choose a Pathway</span></h2>
+            </div>
+            <div class="step-body">
+                <p>
+                    Go to <a href="https://choose-my-stat.vercel.app" target="_blank" rel="noopener"><strong>choose-my-stat.vercel.app</strong></a> and click <strong>"Choose a Statistical Test"</strong>.
+                </p>
+
+                <div class="action-box">
+                    Click <strong>"Comparing Groups / Before-After"</strong> to start the guided decision tree.
+                </div>
+
+                <p>
+                    Since we are comparing a continuous outcome <em>across three groups</em>, the "Comparing Groups / Before-After" pathway is the correct choice. This pathway covers t-tests (2 groups), ANOVA (3+ groups), and their non-parametric counterparts.
+                </p>
+            </div>
+        </section>
+
+        <!-- Step 2: Outcome type -->
+        <section class="step">
+            <div class="step-header">
+                <div class="step-badge">2</div>
+                <h2>Step 1 in the App: <span class="highlight">Outcome Type</span></h2>
+            </div>
+            <div class="step-body">
+                <p>
+                    The first question: <strong>"What type of outcome variable are you measuring?"</strong>
+                </p>
+                <p>
+                    Our outcome is change in HbA1c (%), a <strong>continuous</strong> variable measured on a ratio scale. Values like &minus;1.2%, &minus;0.8%, &minus;1.5% represent the reduction in HbA1c from baseline to 24 weeks.
+                </p>
+
+                <div class="action-box">
+                    Select <strong>"Continuous"</strong>.
+                </div>
+
+                <div class="screenshot-wrapper">
+                    <img src="images/01-step1-outcome.jpg" alt="Step 1: Outcome type question with Continuous selected">
+                    <div class="screenshot-caption">Select "Continuous" for HbA1c change (%)</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Step 3: Comparison structure -->
+        <section class="step">
+            <div class="step-header">
+                <div class="step-badge">3</div>
+                <h2>Step 2 in the App: <span class="highlight">Comparison Structure</span></h2>
+            </div>
+            <div class="step-body">
+                <p>
+                    Next: <strong>"What is the structure of your comparison?"</strong>
+                </p>
+                <p>
+                    We have <strong>three independent groups</strong> (Metformin alone, Metformin + Glimepiride, Metformin + Vildagliptin). Each patient is randomised to one group only &mdash; there is no crossover or repeated measurement across groups.
+                </p>
+
+                <div class="action-box">
+                    Select <strong>"3+ Independent Groups"</strong>.
+                </div>
+
+                <div class="tip-box">
+                    <strong>Why not "2 Independent Groups"?</strong> With three or more groups, a simple t-test is inappropriate because performing multiple pairwise t-tests (Group 1 vs. 2, Group 1 vs. 3, Group 2 vs. 3) inflates the Type I error rate. For k = 3 groups, three pairwise tests at &alpha; = 0.05 each give a family-wise error rate of 1 &minus; (1 &minus; 0.05)&sup3; &asymp; 14.3% &mdash; nearly three times the intended 5%. ANOVA provides a single omnibus test that controls this error rate.
+                </div>
+            </div>
+        </section>
+
+        <!-- Step 4: Distribution -->
+        <section class="step">
+            <div class="step-header">
+                <div class="step-badge">4</div>
+                <h2>Step 3 in the App: <span class="highlight">Distribution</span></h2>
+            </div>
+            <div class="step-body">
+                <p>
+                    The app asks: <strong>"Are the data approximately normally distributed?"</strong>
+                </p>
+                <p>
+                    HbA1c change scores in moderate-sized clinical samples (n &ge; 30 per group) are generally approximately normally distributed. With planned sample sizes of ~37 per group, the central limit theorem provides additional assurance. We can reasonably assume normality.
+                </p>
+
+                <div class="action-box">
+                    Select <strong>"Yes, Normal"</strong>.
+                </div>
+
+                <div class="tip-box">
+                    <strong>When to say "No":</strong> If your data are heavily skewed (e.g., biomarker levels with extreme outliers) or if sample sizes are very small (n &lt; 15 per group), choose "No". The app will recommend the <strong>Kruskal-Wallis test</strong>, the non-parametric counterpart of one-way ANOVA. The Kruskal-Wallis test compares ranks rather than means and does not assume normality.
+                </div>
+            </div>
+        </section>
+
+        <!-- Step 5: Confounders -->
+        <section class="step">
+            <div class="step-header">
+                <div class="step-badge">5</div>
+                <h2>Step 4 in the App: <span class="highlight">Confounders</span></h2>
+            </div>
+            <div class="step-body">
+                <p>
+                    The app asks: <strong>"Do you need to adjust for confounders or covariates?"</strong>
+                </p>
+                <p>
+                    In a well-designed randomised trial, randomisation should balance known and unknown confounders across groups. For the primary analysis of this trial, Dr. Kulkarni plans a simple unadjusted comparison of HbA1c change across the three arms.
+                </p>
+
+                <div class="action-box">
+                    Select <strong>"No"</strong>.
+                </div>
+
+                <div class="tip-box">
+                    <strong>When to say "Yes":</strong> If baseline HbA1c differs across groups despite randomisation (which can happen in small trials), you would want to adjust for baseline HbA1c as a covariate. The app would then guide you toward <strong>ANCOVA</strong> (Analysis of Covariance), which adjusts for baseline differences and typically increases statistical power. In practice, many trial statisticians pre-specify ANCOVA with baseline as a covariate as the primary analysis method.
+                </div>
+            </div>
+        </section>
+
+        <!-- Step 6: The Result -->
+        <section class="step">
+            <div class="step-header">
+                <div class="step-badge green">6</div>
+                <h2><span class="highlight" style="color: var(--green);">The Result:</span> One-Way ANOVA Recommended</h2>
+            </div>
+            <div class="step-body">
+                <p>
+                    The app recommends <strong>One-Way ANOVA</strong> (Analysis of Variance) &mdash; the correct test for comparing means across three or more independent groups when the data are approximately normally distributed.
+                </p>
+
+                <div class="screenshot-wrapper">
+                    <img src="images/03-result.jpg" alt="Result page showing One-Way ANOVA recommended">
+                    <div class="screenshot-caption">ChooseMyStat recommends One-Way ANOVA</div>
+                </div>
+
+                <div class="result-card">
+                    <h3>Understanding the ANOVA Result</h3>
+                    <p>
+                        ANOVA tests the <strong>omnibus null hypothesis</strong>: "All three group means are equal" (H<sub>0</sub>: &mu;<sub>1</sub> = &mu;<sub>2</sub> = &mu;<sub>3</sub>). If the F-test is significant (p &lt; 0.05), it tells you that at least one group differs, but <em>not which one</em>.
+                    </p>
+                    <p>
+                        To determine which specific groups differ from each other, you need <strong>post-hoc pairwise comparisons</strong>. Common choices include:
+                    </p>
+                    <p>
+                        &bull; <strong>Tukey's HSD</strong> &mdash; controls the family-wise error rate; best when comparing all pairs<br>
+                        &bull; <strong>Bonferroni correction</strong> &mdash; more conservative; divides &alpha; by the number of comparisons<br>
+                        &bull; <strong>Dunnett's test</strong> &mdash; when comparing each treatment group against a single control (e.g., Metformin monotherapy)
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Step 7: Sample Size Calculation -->
+        <section class="step">
+            <div class="step-header">
+                <div class="step-badge green">7</div>
+                <h2><span class="highlight" style="color: var(--green);">Sample Size Calculation</span></h2>
+            </div>
+            <div class="step-body">
+                <p>
+                    The sample size for one-way ANOVA depends on the <strong>effect size (Cohen's f)</strong>, the number of groups, the significance level, and the desired power.
+                </p>
+
+                <div class="result-card">
+                    <h3>Cohen's f and Eta-Squared (&eta;&sup2;)</h3>
+                    <p>
+                        Cohen's f is related to &eta;&sup2; (eta-squared, the proportion of variance explained by the group factor) by: <strong>f = &radic;(&eta;&sup2; / (1 &minus; &eta;&sup2;))</strong>
+                    </p>
+                    <p>
+                        Cohen's benchmarks: <strong>f = 0.10</strong> (small, &eta;&sup2; = 0.01), <strong>f = 0.25</strong> (medium, &eta;&sup2; = 0.06), <strong>f = 0.40</strong> (large, &eta;&sup2; = 0.14).
+                    </p>
+                    <p>
+                        Our expected f = 0.30 corresponds to &eta;&sup2; = 0.30&sup2; / (1 + 0.30&sup2;) = 0.09 / 1.09 &asymp; 0.08, meaning the drug regimen explains about 8% of the variance in HbA1c change.
+                    </p>
+                </div>
+
+                <p>Parameters for sample size calculation:</p>
+
+                <div style="overflow-x: auto; margin: 16px 0;">
+                    <table style="width: 100%; border-collapse: collapse; font-size: 15px;">
+                        <thead>
+                            <tr style="background: var(--purple-light);">
+                                <th style="text-align: left; padding: 10px 14px; border-bottom: 2px solid var(--purple); color: var(--purple-dark);">Parameter</th>
+                                <th style="text-align: left; padding: 10px 14px; border-bottom: 2px solid var(--purple); color: var(--purple-dark);">Value</th>
+                                <th style="text-align: left; padding: 10px 14px; border-bottom: 2px solid var(--purple); color: var(--purple-dark);">Why?</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td style="padding: 10px 14px; border-bottom: 1px solid var(--border);">Number of groups (k)</td>
+                                <td style="padding: 10px 14px; border-bottom: 1px solid var(--border);"><strong>3</strong></td>
+                                <td style="padding: 10px 14px; border-bottom: 1px solid var(--border);">Metformin alone, Met + Glimepiride, Met + Vildagliptin</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px 14px; border-bottom: 1px solid var(--border);">Effect size (Cohen's f)</td>
+                                <td style="padding: 10px 14px; border-bottom: 1px solid var(--border);"><strong>0.30</strong></td>
+                                <td style="padding: 10px 14px; border-bottom: 1px solid var(--border);">Moderate effect from head-to-head trials (Bose et al. 2014, Kalra et al. 2015)</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px 14px; border-bottom: 1px solid var(--border);">Alpha (&alpha;)</td>
+                                <td style="padding: 10px 14px; border-bottom: 1px solid var(--border);"><strong>0.05</strong></td>
+                                <td style="padding: 10px 14px; border-bottom: 1px solid var(--border);">Standard 5% significance level</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px 14px; border-bottom: 1px solid var(--border);">Power (1 &minus; &beta;)</td>
+                                <td style="padding: 10px 14px; border-bottom: 1px solid var(--border);"><strong>80%</strong></td>
+                                <td style="padding: 10px 14px; border-bottom: 1px solid var(--border);">Conventional power for clinical trials</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px 14px;">Dropout</td>
+                                <td style="padding: 10px 14px;"><strong>15%</strong></td>
+                                <td style="padding: 10px 14px;">24-week trial with three arms &mdash; higher dropout expected</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="result-card">
+                    <h3>Sample Size Result</h3>
+                    <p>Using G*Power or standard ANOVA power tables with k = 3, f = 0.30, &alpha; = 0.05, power = 80%:</p>
+                    <div class="result-stat">n per group = 37 &rarr; Total N = 111 &rarr; 131 (with 15% dropout)</div>
+                    <p>
+                        You need <strong>37 patients per group</strong> (111 total) to detect a moderate effect of f = 0.30 with 80% power. After adding 15% to account for dropout over the 24-week trial, you should <strong>recruit approximately 44 patients per group (131 total)</strong>.
+                    </p>
+                </div>
+
+                <div class="tip-box">
+                    <strong>Why 15% dropout instead of 10%?</strong> In a multi-arm trial lasting 24 weeks with oral medications, dropout rates are typically higher than in shorter studies. Common reasons include adverse drug effects (especially GI side effects with Metformin), lack of perceived efficacy, loss to follow-up in a busy government hospital setting, and non-compliance with the randomised regimen. Indian diabetes trials report dropout rates of 12&ndash;20% in similar settings.
+                </div>
+            </div>
+        </section>
+
+        <!-- Step 8: What You Get -->
+        <section class="step">
+            <div class="step-header">
+                <div class="step-badge green">8</div>
+                <h2><span class="highlight" style="color: var(--green);">What You Get</span> from ChooseMyStat</h2>
+            </div>
+            <div class="step-body">
+                <p>
+                    ChooseMyStat provides several ready-to-use outputs for your trial protocol or thesis:
+                </p>
+
+                <div class="deliverables">
+                    <div class="deliverable-item">
+                        <h4>SAP Template</h4>
+                        <p>A pre-written paragraph describing your ANOVA analysis plan, including assumptions, post-hoc tests, and sample size justification.</p>
+                    </div>
+                    <div class="deliverable-item">
+                        <h4>Results Example</h4>
+                        <p>A template showing how to report ANOVA results (F-statistic, df, p-value, &eta;&sup2;) and post-hoc pairwise comparisons with adjusted p-values.</p>
+                    </div>
+                    <div class="deliverable-item">
+                        <h4>R Code</h4>
+                        <p>Ready-to-run R code for performing one-way ANOVA, checking assumptions (Levene's test for homogeneity, Shapiro-Wilk for normality), and running Tukey's HSD post-hoc test.</p>
+                    </div>
+                    <div class="deliverable-item">
+                        <h4>G*Power Instructions</h4>
+                        <p>Step-by-step instructions for verifying your sample size in G*Power using the "ANOVA: Fixed effects, omnibus, one-way" test family.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Key Takeaways -->
+        <section class="takeaways">
+            <h2>Key Takeaways</h2>
+            <ol>
+                <li>
+                    <strong>Cohen's f vs. &eta;&sup2; &mdash; know both:</strong> Journals and textbooks use both effect size measures interchangeably. Cohen's f is the input for G*Power sample size calculations, while &eta;&sup2; (or partial &eta;&sup2;) is reported in results tables. They are related by f = &radic;(&eta;&sup2; / (1 &minus; &eta;&sup2;)). Always specify which one you are reporting.
+                </li>
+                <li>
+                    <strong>ANOVA tells you "something differs" but not "what":</strong> A significant F-test only rejects the omnibus null hypothesis. You <em>must</em> follow up with post-hoc pairwise comparisons (Tukey, Bonferroni, or Dunnett) to identify which specific groups differ. Never stop at the ANOVA p-value.
+                </li>
+                <li>
+                    <strong>When to use Kruskal-Wallis instead:</strong> If the data are heavily skewed or sample sizes are very small, use the Kruskal-Wallis test (non-parametric ANOVA alternative). Follow up with Dunn's test for post-hoc pairwise comparisons.
+                </li>
+                <li>
+                    <strong>Consider ANCOVA when baseline differs:</strong> Even in a randomised trial, baseline HbA1c may differ across groups by chance. ANCOVA adjusts for this baseline difference and typically provides a more powerful analysis. Many trial statisticians recommend pre-specifying ANCOVA with baseline as a covariate, even if randomisation is expected to balance groups.
+                </li>
+                <li>
+                    <strong>Check ANOVA assumptions:</strong> One-way ANOVA assumes (a) independence of observations, (b) approximately normal residuals within each group, and (c) homogeneity of variances across groups (check with Levene's test). If variances differ substantially, use Welch's ANOVA, which does not assume equal variances.
+                </li>
+            </ol>
+        </section>
+
+        <!-- Try it yourself CTA -->
+        <section class="cta-section">
+            <p>Ready to find the right test for <em>your</em> study?</p>
+            <a href="https://choose-my-stat.vercel.app" target="_blank" rel="noopener" class="cta-button">
+                Try ChooseMyStat Yourself
+            </a>
+        </section>
+
+        <!-- Other Tutorials -->
+        <section class="other-tutorials">
+            <h3>All Tutorials in This Series</h3>
+            <div class="tutorial-links">
+                <a href="tutorial-paired-ttest.html" class="tutorial-link">
+                    <div class="tl-num">1</div>
+                    <div class="tl-text">
+                        <div class="tl-title">Effect of Yoga on Blood Pressure</div>
+                        <div class="tl-stat">Paired t-test</div>
+                    </div>
+                </a>
+                <a href="tutorial-correlation.html" class="tutorial-link">
+                    <div class="tl-num">2</div>
+                    <div class="tl-text">
+                        <div class="tl-title">BMI and HbA1c Correlation in Type 2 Diabetes</div>
+                        <div class="tl-stat">Pearson / Spearman Correlation</div>
+                    </div>
+                </a>
+                <a href="tutorial-anova.html" class="tutorial-link" style="border-color: var(--purple); background: var(--purple-light);">
+                    <div class="tl-num current">3</div>
+                    <div class="tl-text">
+                        <div class="tl-title">Comparing HbA1c Across Three Diabetes Regimens</div>
+                        <div class="tl-stat">One-Way ANOVA &bull; You are here</div>
+                    </div>
+                </a>
+                <a href="tutorial-logistic-regression.html" class="tutorial-link">
+                    <div class="tl-num">4</div>
+                    <div class="tl-text">
+                        <div class="tl-title">Risk Factors for Preeclampsia</div>
+                        <div class="tl-stat">Chi-Square + Logistic Regression</div>
+                    </div>
+                </a>
+                <a href="tutorial-icc.html" class="tutorial-link">
+                    <div class="tl-num">5</div>
+                    <div class="tl-text">
+                        <div class="tl-title">Inter-rater Reliability of Fundoscopy Grading</div>
+                        <div class="tl-stat">Intraclass Correlation Coefficient (ICC)</div>
+                    </div>
+                </a>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>
+            <strong>ChooseMyStat Tutorials</strong> &mdash; AIIMS Bhopal, Clinical Epidemiology Unit
+        </p>
+        <p style="margin-top: 6px;">
+            <a href="index.html">Back to Tutorial Index</a> &nbsp;&middot;&nbsp;
+            <a href="https://choose-my-stat.vercel.app" target="_blank" rel="noopener">Open ChooseMyStat</a>
+        </p>
+    </footer>
+
+</body>
+</html>

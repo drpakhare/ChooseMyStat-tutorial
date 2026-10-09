@@ -1,0 +1,902 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tutorial 4: Logistic Regression &mdash; Risk Factors for Preeclampsia | ChooseMyStat</title>
+    <style>
+        :root {
+            --purple: #5B5FC7;
+            --purple-light: #EDEDFA;
+            --purple-dark: #4547A9;
+            --green: #2D8A4E;
+            --green-light: #E6F4EC;
+            --green-dark: #1F6B3A;
+            --text: #1E293B;
+            --text-secondary: #475569;
+            --bg: #FAFBFC;
+            --card-bg: #FFFFFF;
+            --border: #E2E8F0;
+            --shadow: 0 2px 8px rgba(0,0,0,0.08);
+            --shadow-md: 0 4px 16px rgba(0,0,0,0.10);
+            --radius: 12px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            color: var(--text);
+            background: var(--bg);
+            line-height: 1.7;
+            font-size: 16px;
+        }
+
+        .top-nav {
+            background: var(--purple);
+            color: #fff;
+            padding: 14px 24px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 8px rgba(91,95,199,0.25);
+        }
+
+        .top-nav-inner {
+            max-width: 860px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .top-nav a {
+            color: #fff;
+            text-decoration: none;
+            font-size: 14px;
+            opacity: 0.9;
+            transition: opacity 0.2s;
+        }
+
+        .top-nav a:hover {
+            opacity: 1;
+            text-decoration: underline;
+        }
+
+        .top-nav .brand {
+            font-weight: 700;
+            font-size: 16px;
+            opacity: 1;
+            letter-spacing: 0.02em;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 32px 20px 60px;
+        }
+
+        .tutorial-header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 32px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .tutorial-label {
+            display: inline-block;
+            background: var(--purple-light);
+            color: var(--purple);
+            font-weight: 600;
+            font-size: 13px;
+            padding: 4px 14px;
+            border-radius: 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-bottom: 16px;
+        }
+
+        .tutorial-header h1 {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--text);
+            margin-bottom: 12px;
+            line-height: 1.25;
+        }
+
+        .tutorial-header h1 span {
+            color: var(--purple);
+        }
+
+        .tutorial-header .subtitle {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .scenario-card {
+            background: linear-gradient(135deg, var(--purple-light) 0%, #f0f0ff 100%);
+            border-left: 5px solid var(--purple);
+            border-radius: var(--radius);
+            padding: 28px 28px 24px;
+            margin-bottom: 40px;
+        }
+
+        .scenario-card h2 {
+            font-size: 1.25rem;
+            color: var(--purple-dark);
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .scenario-card p {
+            margin-bottom: 10px;
+            color: var(--text);
+        }
+
+        .scenario-card ul {
+            list-style: none;
+            padding: 0;
+            margin-top: 12px;
+        }
+
+        .scenario-card ul li {
+            padding: 4px 0 4px 24px;
+            position: relative;
+            color: var(--text-secondary);
+        }
+
+        .scenario-card ul li::before {
+            content: "\2713";
+            position: absolute;
+            left: 0;
+            color: var(--green);
+            font-weight: 700;
+        }
+
+        .step {
+            margin-bottom: 44px;
+        }
+
+        .step-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .step-badge {
+            flex-shrink: 0;
+            width: 44px;
+            height: 44px;
+            background: var(--purple);
+            color: #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 18px;
+            box-shadow: 0 2px 8px rgba(91,95,199,0.3);
+        }
+
+        .step-badge.green {
+            background: var(--green);
+            box-shadow: 0 2px 8px rgba(45,138,78,0.3);
+        }
+
+        .step-header h2 {
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-top: 6px;
+        }
+
+        .step-header h2 .highlight {
+            color: var(--purple);
+        }
+
+        .step-body {
+            padding-left: 60px;
+        }
+
+        .step-body p {
+            margin-bottom: 12px;
+            color: var(--text-secondary);
+        }
+
+        .step-body p strong {
+            color: var(--text);
+        }
+
+        .action-box {
+            background: var(--green-light);
+            border: 1px solid #b6dfc5;
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin: 14px 0;
+            font-size: 15px;
+            color: var(--green-dark);
+            font-weight: 500;
+        }
+
+        .action-box::before {
+            content: "\25B6  ";
+            font-size: 12px;
+        }
+
+        .tip-box {
+            background: #FFF8ED;
+            border: 1px solid #F5DEB3;
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin: 14px 0;
+            font-size: 14.5px;
+            color: #7A5D1E;
+        }
+
+        .tip-box strong {
+            color: #5C4415;
+        }
+
+        .screenshot-wrapper {
+            margin: 18px 0 8px;
+            text-align: center;
+        }
+
+        .screenshot-wrapper img {
+            max-width: 100%;
+            border-radius: 10px;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border);
+        }
+
+        .screenshot-caption {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-top: 8px;
+            font-style: italic;
+        }
+
+        .result-card {
+            background: var(--card-bg);
+            border: 2px solid var(--green);
+            border-radius: var(--radius);
+            padding: 24px;
+            margin: 20px 0;
+        }
+
+        .result-card h3 {
+            color: var(--green);
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+
+        .result-card p {
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .result-card .result-stat {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--green-dark);
+            margin: 8px 0;
+        }
+
+        .deliverables {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+            margin: 16px 0;
+        }
+
+        .deliverable-item {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 18px;
+            transition: box-shadow 0.2s;
+        }
+
+        .deliverable-item:hover {
+            box-shadow: var(--shadow);
+        }
+
+        .deliverable-item h4 {
+            font-size: 15px;
+            color: var(--purple);
+            margin-bottom: 6px;
+        }
+
+        .deliverable-item p {
+            font-size: 13.5px;
+            color: var(--text-secondary);
+            margin: 0;
+        }
+
+        .takeaways {
+            background: linear-gradient(135deg, var(--green-light) 0%, #f0faf4 100%);
+            border-left: 5px solid var(--green);
+            border-radius: var(--radius);
+            padding: 28px;
+            margin: 36px 0;
+        }
+
+        .takeaways h2 {
+            color: var(--green-dark);
+            font-size: 1.25rem;
+            margin-bottom: 16px;
+        }
+
+        .takeaways ol {
+            padding-left: 20px;
+        }
+
+        .takeaways ol li {
+            margin-bottom: 12px;
+            color: var(--text);
+        }
+
+        .takeaways ol li strong {
+            color: var(--green-dark);
+        }
+
+        .cta-section {
+            text-align: center;
+            margin: 44px 0 36px;
+            padding: 32px 20px;
+            background: var(--purple-light);
+            border-radius: var(--radius);
+        }
+
+        .cta-section p {
+            font-size: 1.05rem;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background: var(--purple);
+            color: #fff;
+            text-decoration: none;
+            padding: 14px 36px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 16px;
+            transition: background 0.2s, transform 0.1s;
+            box-shadow: 0 2px 8px rgba(91,95,199,0.3);
+        }
+
+        .cta-button:hover {
+            background: var(--purple-dark);
+            transform: translateY(-1px);
+        }
+
+        .other-tutorials {
+            border-top: 2px solid var(--border);
+            padding-top: 32px;
+            margin-top: 36px;
+        }
+
+        .other-tutorials h3 {
+            font-size: 1.1rem;
+            color: var(--text);
+            margin-bottom: 16px;
+        }
+
+        .tutorial-links {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .tutorial-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 18px;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            text-decoration: none;
+            color: var(--text);
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .tutorial-link:hover {
+            border-color: var(--purple);
+            box-shadow: var(--shadow);
+        }
+
+        .tutorial-link .tl-num {
+            width: 32px;
+            height: 32px;
+            background: var(--purple-light);
+            color: var(--purple);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        .tutorial-link .tl-num.current {
+            background: var(--purple);
+            color: #fff;
+        }
+
+        .tutorial-link .tl-text {
+            font-size: 14.5px;
+        }
+
+        .tutorial-link .tl-text .tl-title {
+            font-weight: 600;
+        }
+
+        .tutorial-link .tl-text .tl-stat {
+            color: var(--text-secondary);
+            font-size: 13px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 32px 20px;
+            margin-top: 24px;
+            border-top: 1px solid var(--border);
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        footer a {
+            color: var(--purple);
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 640px) {
+            .tutorial-header h1 {
+                font-size: 1.55rem;
+            }
+
+            .step-body {
+                padding-left: 0;
+                margin-top: 10px;
+            }
+
+            .step-header {
+                gap: 12px;
+            }
+
+            .deliverables {
+                grid-template-columns: 1fr;
+            }
+
+            .scenario-card,
+            .takeaways {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Top Navigation -->
+    <nav class="top-nav">
+        <div class="top-nav-inner">
+            <a href="index.html" class="brand">ChooseMyStat Tutorials</a>
+            <a href="https://choose-my-stat.vercel.app" target="_blank" rel="noopener">Open the App &rarr;</a>
+        </div>
+    </nav>
+
+    <div class="container">
+
+        <!-- Tutorial Header -->
+        <header class="tutorial-header">
+            <div class="tutorial-label">Tutorial 4</div>
+            <h1>Risk Factors for Preeclampsia<br><span>Chi-Square Test + Logistic Regression</span></h1>
+            <p class="subtitle">
+                Walk through ChooseMyStat to identify the right analysis strategy when you have a binary outcome, multiple risk factors, and need to adjust for confounders.
+            </p>
+        </header>
+
+        <!-- Study Scenario -->
+        <section class="scenario-card">
+            <h2>Study Scenario</h2>
+            <p>
+                Dr. Meena, a senior resident in Obstetrics and Gynaecology at a government medical college hospital, is studying <strong>risk factors for preeclampsia</strong> in a prospective cohort of pregnant women. She wants to identify which maternal factors independently predict the development of preeclampsia after adjusting for potential confounders.
+            </p>
+            <p>
+                The study follows pregnant women from their first antenatal visit through delivery, recording baseline risk factors and tracking who develops preeclampsia (defined as new-onset hypertension &ge; 140/90 mmHg with proteinuria after 20 weeks of gestation).
+            </p>
+            <ul>
+                <li><strong>Outcome:</strong> Preeclampsia (Yes / No) &mdash; a binary variable</li>
+                <li><strong>Risk factors:</strong> BMI, maternal age, parity, family history of preeclampsia, gestational diabetes</li>
+                <li><strong>Design:</strong> Prospective cohort with confounder adjustment</li>
+                <li><strong>Baseline event rate:</strong> ~8% (based on Indian studies: Abalos et al. 2013, Srinivas et al. 2019)</li>
+                <li><strong>Expected OR for primary exposure (high BMI):</strong> 2.0</li>
+                <li><strong>Significance level (&alpha;):</strong> 0.05</li>
+                <li><strong>Power:</strong> 80%</li>
+            </ul>
+        </section>
+
+        <!-- Step 1: Open the app -->
+        <section class="step">
+            <div class="step-header">
+                <div class="step-badge">1</div>
+                <h2>Open the App and <span class="highlight">Choose a Pathway</span></h2>
+            </div>
+            <div class="step-body">
+                <p>
+                    Go to <a href="https://choose-my-stat.vercel.app" target="_blank" rel="noopener"><strong>choose-my-stat.vercel.app</strong></a> and click <strong>"Choose a Statistical Test"</strong>.
+                </p>
+
+                <div class="action-box">
+                    Click <strong>"Comparing Groups / Before-After"</strong> to start the guided decision tree.
+                </div>
+
+                <p>
+                    Even though we ultimately need logistic regression, the starting point is a comparison question: we are comparing the proportion of preeclampsia between groups defined by a risk factor (e.g., high BMI vs. normal BMI). The app's decision tree will guide us from the simple chi-square test to logistic regression once we indicate the need for confounder adjustment.
+                </p>
+            </div>
+        </section>
+
+        <!-- Step 2: Outcome type -->
+        <section class="step">
+            <div class="step-header">
+                <div class="step-badge">2</div>
+                <h2>Step 1 in the App: <span class="highlight">Outcome Type</span></h2>
+            </div>
+            <div class="step-body">
+                <p>
+                    The first question: <strong>"What type of outcome variable are you measuring?"</strong>
+                </p>
+                <p>
+                    Our outcome is preeclampsia (Yes / No) &mdash; a <strong>binary</strong> (dichotomous) variable. It falls under the "Categorical" umbrella, specifically a binary categorical outcome with exactly two levels.
+                </p>
+
+                <div class="action-box">
+                    Select <strong>"Binary"</strong> (or "Categorical &rarr; Binary", depending on the app version).
+                </div>
+
+                <div class="tip-box">
+                    <strong>Binary vs. Categorical:</strong> A binary outcome has exactly two categories (disease present/absent, success/failure, alive/dead). If preeclampsia had been graded as none/mild/severe (three levels), it would be an ordinal outcome, and the app would guide you toward ordinal logistic regression or a chi-square test for trend.
+                </div>
+            </div>
+        </section>
+
+        <!-- Step 3: Comparison structure -->
+        <section class="step">
+            <div class="step-header">
+                <div class="step-badge">3</div>
+                <h2>Step 2 in the App: <span class="highlight">Comparison Structure</span></h2>
+            </div>
+            <div class="step-body">
+                <p>
+                    Next: <strong>"What is the structure of your comparison?"</strong>
+                </p>
+                <p>
+                    We are comparing the rate of preeclampsia between <strong>two independent groups</strong> defined by a risk factor (e.g., BMI &ge; 30 vs. BMI &lt; 30). The groups are independent &mdash; each woman is in one group only.
+                </p>
+
+                <div class="action-box">
+                    Select <strong>"2 Independent Groups"</strong>.
+                </div>
+            </div>
+        </section>
+
+        <!-- Step 4: Confounders -->
+        <section class="step">
+            <div class="step-header">
+                <div class="step-badge">4</div>
+                <h2>Step 3 in the App: <span class="highlight">Adjust for Confounders?</span></h2>
+            </div>
+            <div class="step-body">
+                <p>
+                    The app asks: <strong>"Do you need to adjust for confounders or covariates?"</strong>
+                </p>
+                <p>
+                    This is the critical step. Dr. Meena has <strong>multiple risk factors</strong> (BMI, age, parity, family history, gestational diabetes) and needs to determine which ones are <em>independently</em> associated with preeclampsia after controlling for the others. A simple chi-square test cannot do this &mdash; it only tests one factor at a time without adjusting for confounders.
+                </p>
+
+                <div class="action-box">
+                    Select <strong>"Yes"</strong> &mdash; we need confounder adjustment.
+                </div>
+
+                <div class="tip-box">
+                    <strong>Why "Yes" matters here:</strong> Consider a scenario where older women also tend to have higher BMI. A crude chi-square analysis might show that both age and BMI are associated with preeclampsia, but it cannot disentangle which effect is independent. Logistic regression allows you to estimate the <em>adjusted</em> odds ratio for BMI while holding age (and other variables) constant &mdash; answering the question: "Is high BMI a risk factor for preeclampsia even after accounting for maternal age?"
+                </div>
+            </div>
+        </section>
+
+        <!-- Step 5: Sample Size -->
+        <section class="step">
+            <div class="step-header">
+                <div class="step-badge">5</div>
+                <h2>Step 4 in the App: <span class="highlight">Sample Size Category</span></h2>
+            </div>
+            <div class="step-body">
+                <p>
+                    The app asks about your expected sample size to determine the appropriate approach.
+                </p>
+
+                <div class="action-box">
+                    Select <strong>"Moderate-Large (&ge; 30)"</strong> &mdash; we expect a large sample.
+                </div>
+            </div>
+        </section>
+
+        <!-- Step 6: The Result -->
+        <section class="step">
+            <div class="step-header">
+                <div class="step-badge green">6</div>
+                <h2><span class="highlight" style="color: var(--green);">The Result:</span> Chi-Square + Logistic Regression</h2>
+            </div>
+            <div class="step-body">
+                <p>
+                    The app recommends a <strong>two-stage analysis strategy</strong>:
+                </p>
+                <p>
+                    <strong>Stage 1 &mdash; Chi-Square Test:</strong> Perform bivariate (unadjusted) analysis of each risk factor against the outcome using chi-square tests. This identifies which variables are individually associated with preeclampsia (typically using p &lt; 0.20 or p &lt; 0.25 as a liberal screening threshold for inclusion in the multivariable model).
+                </p>
+                <p>
+                    <strong>Stage 2 &mdash; Multivariable Logistic Regression:</strong> Enter all significant (or clinically important) variables from Stage 1 into a logistic regression model. This produces <strong>adjusted odds ratios (aOR)</strong> that quantify each risk factor's independent contribution after controlling for the others.
+                </p>
+
+                <div class="screenshot-wrapper">
+                    <img src="images/04-result.jpg" alt="Result page showing Chi-Square + Logistic Regression recommended">
+                    <div class="screenshot-caption">ChooseMyStat recommends Chi-Square for bivariate analysis, followed by Logistic Regression for confounder adjustment</div>
+                </div>
+
+                <div class="result-card">
+                    <h3>Why Chi-Square Alone Is Not Enough</h3>
+                    <p>
+                        A chi-square test tells you whether a single risk factor is associated with the outcome <em>in isolation</em>. But in clinical research, risk factors are often correlated with each other (e.g., older women have higher BMI, gestational diabetes is more common with higher BMI). Without confounder adjustment, you cannot determine which factors are <strong>independently</strong> predictive.
+                    </p>
+                    <p>
+                        Logistic regression solves this by modelling all risk factors simultaneously. The adjusted odds ratio for each variable represents its effect on the outcome <em>holding all other variables constant</em>.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Step 7: Sample Size Calculation -->
+        <section class="step">
+            <div class="step-header">
+                <div class="step-badge green">7</div>
+                <h2><span class="highlight" style="color: var(--green);">Sample Size Calculation</span></h2>
+            </div>
+            <div class="step-body">
+                <p>
+                    Sample size for logistic regression can be calculated using two approaches. Both should be checked, and the <strong>larger</strong> result should be used.
+                </p>
+
+                <div class="result-card">
+                    <h3>Approach 1: Hsieh's Formula (1989)</h3>
+                    <p>
+                        For a single predictor with a binary outcome, Hsieh's formula estimates the required sample size based on the baseline event rate (p<sub>0</sub>) and the expected odds ratio (OR):
+                    </p>
+                    <p>
+                        With p<sub>0</sub> = 0.08 (8% baseline preeclampsia rate), OR = 2.0 for the primary exposure (high BMI), &alpha; = 0.05 (two-sided), power = 80%:
+                    </p>
+                    <p>
+                        <strong>n &asymp; 490</strong>
+                    </p>
+                </div>
+
+                <div class="result-card">
+                    <h3>Approach 2: Events Per Variable (EPV) Rule</h3>
+                    <p>
+                        The EPV rule (Peduzzi et al. 1996) states that logistic regression requires a minimum of <strong>10 events per predictor variable</strong> to produce stable estimates with acceptable bias.
+                    </p>
+                    <p>
+                        With 5 predictor variables (BMI, age, parity, family history, gestational diabetes) and a baseline event rate of 8%:
+                    </p>
+                    <p>
+                        Minimum events needed = 5 &times; 10 = 50<br>
+                        Total n needed = 50 / 0.08 = <strong>625</strong>
+                    </p>
+                </div>
+
+                <div style="overflow-x: auto; margin: 16px 0;">
+                    <table style="width: 100%; border-collapse: collapse; font-size: 15px;">
+                        <thead>
+                            <tr style="background: var(--purple-light);">
+                                <th style="text-align: left; padding: 10px 14px; border-bottom: 2px solid var(--purple); color: var(--purple-dark);">Parameter</th>
+                                <th style="text-align: left; padding: 10px 14px; border-bottom: 2px solid var(--purple); color: var(--purple-dark);">Value</th>
+                                <th style="text-align: left; padding: 10px 14px; border-bottom: 2px solid var(--purple); color: var(--purple-dark);">Why?</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td style="padding: 10px 14px; border-bottom: 1px solid var(--border);">Baseline event rate (p<sub>0</sub>)</td>
+                                <td style="padding: 10px 14px; border-bottom: 1px solid var(--border);"><strong>8%</strong></td>
+                                <td style="padding: 10px 14px; border-bottom: 1px solid var(--border);">Prevalence of preeclampsia in Indian hospital cohorts (Abalos et al. 2013)</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px 14px; border-bottom: 1px solid var(--border);">Expected OR (primary exposure)</td>
+                                <td style="padding: 10px 14px; border-bottom: 1px solid var(--border);"><strong>2.0</strong></td>
+                                <td style="padding: 10px 14px; border-bottom: 1px solid var(--border);">OR for high BMI from Srinivas et al. 2019, Indian PE risk factor studies</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px 14px; border-bottom: 1px solid var(--border);">Number of predictors</td>
+                                <td style="padding: 10px 14px; border-bottom: 1px solid var(--border);"><strong>5</strong></td>
+                                <td style="padding: 10px 14px; border-bottom: 1px solid var(--border);">BMI, age, parity, family history, gestational diabetes</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px 14px; border-bottom: 1px solid var(--border);">Alpha (&alpha;)</td>
+                                <td style="padding: 10px 14px; border-bottom: 1px solid var(--border);"><strong>0.05</strong></td>
+                                <td style="padding: 10px 14px; border-bottom: 1px solid var(--border);">Standard 5% significance level (two-sided)</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px 14px; border-bottom: 1px solid var(--border);">Power (1 &minus; &beta;)</td>
+                                <td style="padding: 10px 14px; border-bottom: 1px solid var(--border);"><strong>80%</strong></td>
+                                <td style="padding: 10px 14px; border-bottom: 1px solid var(--border);">Conventional power for observational studies</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px 14px;">Hsieh result</td>
+                                <td style="padding: 10px 14px;"><strong>n &asymp; 490</strong></td>
+                                <td style="padding: 10px 14px;">Based on the primary exposure's OR</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px 14px;">EPV result</td>
+                                <td style="padding: 10px 14px;"><strong>n &asymp; 625</strong></td>
+                                <td style="padding: 10px 14px;">Based on 10 events per predictor variable</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="result-card">
+                    <h3>Sample Size Result</h3>
+                    <p>Taking the larger of the two estimates (EPV rule):</p>
+                    <div class="result-stat">N = 625 (use the larger of Hsieh and EPV estimates)</div>
+                    <p>
+                        You need at least <strong>625 pregnant women</strong> to have sufficient events (50 preeclampsia cases) for a stable 5-variable logistic regression model. In a high-volume government hospital delivering 200&ndash;300 women per month, this is achievable within 3&ndash;4 months of recruitment.
+                    </p>
+                </div>
+
+                <div class="tip-box">
+                    <strong>Hsieh vs. EPV &mdash; which to use?</strong> Both approaches address different aspects of sample size adequacy. Hsieh's formula focuses on the <em>power to detect a specific effect size</em> (OR) for the primary exposure. The EPV rule focuses on <em>model stability</em> &mdash; ensuring that the logistic regression coefficients are estimated with acceptable precision and bias. In practice, calculate both and use the larger result. If the EPV requirement is much larger, it usually means the event rate is low relative to the number of predictors &mdash; a common problem in obstetric research where outcomes like preeclampsia are relatively rare (5&ndash;10%).
+                </div>
+
+                <div class="tip-box">
+                    <strong>Interpreting Odds Ratios:</strong> An adjusted OR of 2.0 for high BMI means that women with high BMI have <em>twice the odds</em> of developing preeclampsia compared to normal-BMI women, <strong>after adjusting for</strong> maternal age, parity, family history, and gestational diabetes. Always report ORs with 95% confidence intervals. An OR whose CI includes 1.0 is not statistically significant at the 5% level.
+                </div>
+            </div>
+        </section>
+
+        <!-- Step 8: What You Get -->
+        <section class="step">
+            <div class="step-header">
+                <div class="step-badge green">8</div>
+                <h2><span class="highlight" style="color: var(--green);">What You Get</span> from ChooseMyStat</h2>
+            </div>
+            <div class="step-body">
+                <p>
+                    ChooseMyStat provides several ready-to-use outputs for your thesis or protocol:
+                </p>
+
+                <div class="deliverables">
+                    <div class="deliverable-item">
+                        <h4>SAP Template</h4>
+                        <p>A pre-written Statistical Analysis Plan paragraph describing the two-stage analysis: bivariate chi-square screening followed by multivariable logistic regression.</p>
+                    </div>
+                    <div class="deliverable-item">
+                        <h4>Results Example</h4>
+                        <p>A template showing how to report logistic regression results: a table of crude and adjusted odds ratios with 95% CIs and p-values for each predictor.</p>
+                    </div>
+                    <div class="deliverable-item">
+                        <h4>R Code</h4>
+                        <p>Ready-to-run R code for performing chi-square tests, fitting a logistic regression model (glm with family = binomial), and generating an odds ratio table with confint().</p>
+                    </div>
+                    <div class="deliverable-item">
+                        <h4>Model Diagnostics</h4>
+                        <p>Guidance on checking model fit (Hosmer-Lemeshow test), discrimination (AUC/c-statistic), and collinearity (VIF) &mdash; essential for a credible logistic regression analysis.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Key Takeaways -->
+        <section class="takeaways">
+            <h2>Key Takeaways</h2>
+            <ol>
+                <li>
+                    <strong>Chi-square alone is not enough with confounders:</strong> A chi-square test only examines one risk factor at a time. When multiple risk factors are correlated with each other and with the outcome, you need multivariable logistic regression to identify which factors are <em>independently</em> associated with the outcome.
+                </li>
+                <li>
+                    <strong>Use both Hsieh and EPV for sample size:</strong> Calculate sample size using both approaches and use the larger result. The Hsieh formula targets statistical power for the primary exposure, while the EPV rule (minimum 10 events per predictor) ensures model stability.
+                </li>
+                <li>
+                    <strong>Low event rates demand large samples:</strong> When the outcome is rare (preeclampsia at 8%), the EPV rule often dominates the sample size calculation. With 5 predictors and an 8% event rate, you need 625 women to ensure 50 events. This is a common challenge in obstetric and rare-disease research.
+                </li>
+                <li>
+                    <strong>Report both crude and adjusted ORs:</strong> In your thesis results table, show the crude (unadjusted) OR from bivariate analysis alongside the adjusted OR from logistic regression for each risk factor. The difference between the two reveals the degree of confounding. A large change (typically &gt; 10%) indicates meaningful confounding.
+                </li>
+                <li>
+                    <strong>Check for collinearity:</strong> Before interpreting the logistic regression model, check the Variance Inflation Factor (VIF) for each predictor. VIF &gt; 5&ndash;10 suggests problematic collinearity &mdash; two predictors are too highly correlated for the model to estimate their independent effects reliably. In this study, BMI and gestational diabetes may be correlated, requiring careful evaluation.
+                </li>
+            </ol>
+        </section>
+
+        <!-- Try it yourself CTA -->
+        <section class="cta-section">
+            <p>Ready to find the right test for <em>your</em> study?</p>
+            <a href="https://choose-my-stat.vercel.app" target="_blank" rel="noopener" class="cta-button">
+                Try ChooseMyStat Yourself
+            </a>
+        </section>
+
+        <!-- Other Tutorials -->
+        <section class="other-tutorials">
+            <h3>All Tutorials in This Series</h3>
+            <div class="tutorial-links">
+                <a href="tutorial-paired-ttest.html" class="tutorial-link">
+                    <div class="tl-num">1</div>
+                    <div class="tl-text">
+                        <div class="tl-title">Effect of Yoga on Blood Pressure</div>
+                        <div class="tl-stat">Paired t-test</div>
+                    </div>
+                </a>
+                <a href="tutorial-correlation.html" class="tutorial-link">
+                    <div class="tl-num">2</div>
+                    <div class="tl-text">
+                        <div class="tl-title">BMI and HbA1c Correlation in Type 2 Diabetes</div>
+                        <div class="tl-stat">Pearson / Spearman Correlation</div>
+                    </div>
+                </a>
+                <a href="tutorial-anova.html" class="tutorial-link">
+                    <div class="tl-num">3</div>
+                    <div class="tl-text">
+                        <div class="tl-title">Comparing HbA1c Across Three Diabetes Regimens</div>
+                        <div class="tl-stat">One-Way ANOVA</div>
+                    </div>
+                </a>
+                <a href="tutorial-logistic-regression.html" class="tutorial-link" style="border-color: var(--purple); background: var(--purple-light);">
+                    <div class="tl-num current">4</div>
+                    <div class="tl-text">
+                        <div class="tl-title">Risk Factors for Preeclampsia</div>
+                        <div class="tl-stat">Chi-Square + Logistic Regression &bull; You are here</div>
+                    </div>
+                </a>
+                <a href="tutorial-icc.html" class="tutorial-link">
+                    <div class="tl-num">5</div>
+                    <div class="tl-text">
+                        <div class="tl-title">Inter-rater Reliability of Fundoscopy Grading</div>
+                        <div class="tl-stat">Intraclass Correlation Coefficient (ICC)</div>
+                    </div>
+                </a>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>
+            <strong>ChooseMyStat Tutorials</strong> &mdash; AIIMS Bhopal, Clinical Epidemiology Unit
+        </p>
+        <p style="margin-top: 6px;">
+            <a href="index.html">Back to Tutorial Index</a> &nbsp;&middot;&nbsp;
+            <a href="https://choose-my-stat.vercel.app" target="_blank" rel="noopener">Open ChooseMyStat</a>
+        </p>
+    </footer>
+
+</body>
+</html>

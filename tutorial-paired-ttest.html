@@ -1,0 +1,939 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tutorial 1: Paired t-test &mdash; Effect of Yoga on Blood Pressure | ChooseMyStat</title>
+    <style>
+        :root {
+            --purple: #5B5FC7;
+            --purple-light: #EDEDFA;
+            --purple-dark: #4547A9;
+            --green: #2D8A4E;
+            --green-light: #E6F4EC;
+            --green-dark: #1F6B3A;
+            --text: #1E293B;
+            --text-secondary: #475569;
+            --bg: #FAFBFC;
+            --card-bg: #FFFFFF;
+            --border: #E2E8F0;
+            --shadow: 0 2px 8px rgba(0,0,0,0.08);
+            --shadow-md: 0 4px 16px rgba(0,0,0,0.10);
+            --radius: 12px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            color: var(--text);
+            background: var(--bg);
+            line-height: 1.7;
+            font-size: 16px;
+        }
+
+        /* Top navigation bar */
+        .top-nav {
+            background: var(--purple);
+            color: #fff;
+            padding: 14px 24px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 8px rgba(91,95,199,0.25);
+        }
+
+        .top-nav-inner {
+            max-width: 860px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .top-nav a {
+            color: #fff;
+            text-decoration: none;
+            font-size: 14px;
+            opacity: 0.9;
+            transition: opacity 0.2s;
+        }
+
+        .top-nav a:hover {
+            opacity: 1;
+            text-decoration: underline;
+        }
+
+        .top-nav .brand {
+            font-weight: 700;
+            font-size: 16px;
+            opacity: 1;
+            letter-spacing: 0.02em;
+        }
+
+        /* Main container */
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 32px 20px 60px;
+        }
+
+        /* Tutorial header */
+        .tutorial-header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 32px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .tutorial-label {
+            display: inline-block;
+            background: var(--purple-light);
+            color: var(--purple);
+            font-weight: 600;
+            font-size: 13px;
+            padding: 4px 14px;
+            border-radius: 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-bottom: 16px;
+        }
+
+        .tutorial-header h1 {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--text);
+            margin-bottom: 12px;
+            line-height: 1.25;
+        }
+
+        .tutorial-header h1 span {
+            color: var(--purple);
+        }
+
+        .tutorial-header .subtitle {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Scenario card */
+        .scenario-card {
+            background: linear-gradient(135deg, var(--purple-light) 0%, #f0f0ff 100%);
+            border-left: 5px solid var(--purple);
+            border-radius: var(--radius);
+            padding: 28px 28px 24px;
+            margin-bottom: 40px;
+        }
+
+        .scenario-card h2 {
+            font-size: 1.25rem;
+            color: var(--purple-dark);
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .scenario-card p {
+            margin-bottom: 10px;
+            color: var(--text);
+        }
+
+        .scenario-card ul {
+            list-style: none;
+            padding: 0;
+            margin-top: 12px;
+        }
+
+        .scenario-card ul li {
+            padding: 4px 0 4px 24px;
+            position: relative;
+            color: var(--text-secondary);
+        }
+
+        .scenario-card ul li::before {
+            content: "\2713";
+            position: absolute;
+            left: 0;
+            color: var(--green);
+            font-weight: 700;
+        }
+
+        /* Step sections */
+        .step {
+            margin-bottom: 44px;
+        }
+
+        .step-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .step-badge {
+            flex-shrink: 0;
+            width: 44px;
+            height: 44px;
+            background: var(--purple);
+            color: #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 18px;
+            box-shadow: 0 2px 8px rgba(91,95,199,0.3);
+        }
+
+        .step-badge.green {
+            background: var(--green);
+            box-shadow: 0 2px 8px rgba(45,138,78,0.3);
+        }
+
+        .step-header h2 {
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-top: 6px;
+        }
+
+        .step-header h2 .highlight {
+            color: var(--purple);
+        }
+
+        .step-body {
+            padding-left: 60px;
+        }
+
+        .step-body p {
+            margin-bottom: 12px;
+            color: var(--text-secondary);
+        }
+
+        .step-body p strong {
+            color: var(--text);
+        }
+
+        /* Action instruction callout */
+        .action-box {
+            background: var(--green-light);
+            border: 1px solid #b6dfc5;
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin: 14px 0;
+            font-size: 15px;
+            color: var(--green-dark);
+            font-weight: 500;
+        }
+
+        .action-box::before {
+            content: "\25B6  ";
+            font-size: 12px;
+        }
+
+        /* Reasoning / tip callout */
+        .tip-box {
+            background: #FFF8ED;
+            border: 1px solid #F5DEB3;
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin: 14px 0;
+            font-size: 14.5px;
+            color: #7A5D1E;
+        }
+
+        .tip-box strong {
+            color: #5C4415;
+        }
+
+        /* Screenshots */
+        .screenshot-wrapper {
+            margin: 18px 0 8px;
+            text-align: center;
+        }
+
+        .screenshot-wrapper img {
+            max-width: 100%;
+            border-radius: 10px;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border);
+        }
+
+        .screenshot-caption {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-top: 8px;
+            font-style: italic;
+        }
+
+        /* Result card */
+        .result-card {
+            background: var(--card-bg);
+            border: 2px solid var(--green);
+            border-radius: var(--radius);
+            padding: 24px;
+            margin: 20px 0;
+        }
+
+        .result-card h3 {
+            color: var(--green);
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+
+        .result-card p {
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .result-card .result-stat {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--green-dark);
+            margin: 8px 0;
+        }
+
+        /* "What you get" list */
+        .deliverables {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+            margin: 16px 0;
+        }
+
+        .deliverable-item {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 18px;
+            transition: box-shadow 0.2s;
+        }
+
+        .deliverable-item:hover {
+            box-shadow: var(--shadow);
+        }
+
+        .deliverable-item h4 {
+            font-size: 15px;
+            color: var(--purple);
+            margin-bottom: 6px;
+        }
+
+        .deliverable-item p {
+            font-size: 13.5px;
+            color: var(--text-secondary);
+            margin: 0;
+        }
+
+        /* Key takeaways */
+        .takeaways {
+            background: linear-gradient(135deg, var(--green-light) 0%, #f0faf4 100%);
+            border-left: 5px solid var(--green);
+            border-radius: var(--radius);
+            padding: 28px;
+            margin: 36px 0;
+        }
+
+        .takeaways h2 {
+            color: var(--green-dark);
+            font-size: 1.25rem;
+            margin-bottom: 16px;
+        }
+
+        .takeaways ol {
+            padding-left: 20px;
+        }
+
+        .takeaways ol li {
+            margin-bottom: 12px;
+            color: var(--text);
+        }
+
+        .takeaways ol li strong {
+            color: var(--green-dark);
+        }
+
+        /* CTA button */
+        .cta-section {
+            text-align: center;
+            margin: 44px 0 36px;
+            padding: 32px 20px;
+            background: var(--purple-light);
+            border-radius: var(--radius);
+        }
+
+        .cta-section p {
+            font-size: 1.05rem;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background: var(--purple);
+            color: #fff;
+            text-decoration: none;
+            padding: 14px 36px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 16px;
+            transition: background 0.2s, transform 0.1s;
+            box-shadow: 0 2px 8px rgba(91,95,199,0.3);
+        }
+
+        .cta-button:hover {
+            background: var(--purple-dark);
+            transform: translateY(-1px);
+        }
+
+        /* Other tutorials nav */
+        .other-tutorials {
+            border-top: 2px solid var(--border);
+            padding-top: 32px;
+            margin-top: 36px;
+        }
+
+        .other-tutorials h3 {
+            font-size: 1.1rem;
+            color: var(--text);
+            margin-bottom: 16px;
+        }
+
+        .tutorial-links {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .tutorial-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 18px;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            text-decoration: none;
+            color: var(--text);
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .tutorial-link:hover {
+            border-color: var(--purple);
+            box-shadow: var(--shadow);
+        }
+
+        .tutorial-link .tl-num {
+            width: 32px;
+            height: 32px;
+            background: var(--purple-light);
+            color: var(--purple);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        .tutorial-link .tl-num.current {
+            background: var(--purple);
+            color: #fff;
+        }
+
+        .tutorial-link .tl-text {
+            font-size: 14.5px;
+        }
+
+        .tutorial-link .tl-text .tl-title {
+            font-weight: 600;
+        }
+
+        .tutorial-link .tl-text .tl-stat {
+            color: var(--text-secondary);
+            font-size: 13px;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 32px 20px;
+            margin-top: 24px;
+            border-top: 1px solid var(--border);
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        footer a {
+            color: var(--purple);
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Responsive tweaks */
+        @media (max-width: 640px) {
+            .tutorial-header h1 {
+                font-size: 1.55rem;
+            }
+
+            .step-body {
+                padding-left: 0;
+                margin-top: 10px;
+            }
+
+            .step-header {
+                gap: 12px;
+            }
+
+            .deliverables {
+                grid-template-columns: 1fr;
+            }
+
+            .scenario-card,
+            .takeaways {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Top Navigation -->
+    <nav class="top-nav">
+        <div class="top-nav-inner">
+            <a href="index.html" class="brand">ChooseMyStat Tutorials</a>
+            <a href="https://choose-my-stat.vercel.app" target="_blank" rel="noopener">Open the App &rarr;</a>
+        </div>
+    </nav>
+
+    <div class="container">
+
+        <!-- Tutorial Header -->
+        <header class="tutorial-header">
+            <div class="tutorial-label">Tutorial 1</div>
+            <h1>Effect of Yoga on Blood Pressure<br><span>Paired t-test</span></h1>
+            <p class="subtitle">
+                Walk through ChooseMyStat step by step to choose the right test and calculate the sample size for a pre-post yoga intervention study.
+            </p>
+        </header>
+
+        <!-- Study Scenario -->
+        <section class="scenario-card">
+            <h2>Study Scenario</h2>
+            <p>
+                Dr. Sharma, a PG resident in Community Medicine at a tertiary hospital (AIIMS-like setting), wants to study whether a <strong>12-week structured yoga programme</strong> can reduce systolic blood pressure (SBP) in adults with stage 1 hypertension.
+            </p>
+            <p>
+                The design is straightforward: measure each patient's SBP <strong>before</strong> starting yoga, then measure it again <strong>after</strong> 12 weeks of the intervention. The same subjects are measured twice &mdash; a classic <em>pre-post</em> or <em>before-after</em> study.
+            </p>
+            <ul>
+                <li><strong>Outcome:</strong> Systolic blood pressure (mmHg) &mdash; a continuous variable</li>
+                <li><strong>Design:</strong> Paired / before-after (each subject is their own control)</li>
+                <li><strong>Expected mean reduction (&delta;):</strong> 8 mmHg (based on Cramer et al. 2014 meta-analysis)</li>
+                <li><strong>SD of paired differences:</strong> 15 mmHg (from Hagins et al. 2013, Indian yoga studies)</li>
+                <li><strong>Significance level (&alpha;):</strong> 0.05 (two-sided)</li>
+                <li><strong>Power:</strong> 80%</li>
+            </ul>
+        </section>
+
+        <!-- Step 1: Open the app -->
+        <section class="step">
+            <div class="step-header">
+                <div class="step-badge">1</div>
+                <h2>Open the App and <span class="highlight">Choose a Pathway</span></h2>
+            </div>
+            <div class="step-body">
+                <p>
+                    Go to <a href="https://choose-my-stat.vercel.app" target="_blank" rel="noopener"><strong>choose-my-stat.vercel.app</strong></a>. You will see the landing page with a brief introduction to what the app does.
+                </p>
+
+                <div class="screenshot-wrapper">
+                    <img src="images/00-landing.jpg" alt="ChooseMyStat landing page showing the hero section and introduction">
+                    <div class="screenshot-caption">The ChooseMyStat landing page</div>
+                </div>
+
+                <div class="action-box">
+                    Click the <strong>"Choose a Statistical Test"</strong> button (the purple button on the landing page).
+                </div>
+
+                <p>
+                    You will see five pathway cards. For most clinical research questions, the first pathway &mdash; <strong>Comparing Groups / Before-After</strong> &mdash; is the one you need. This pathway covers t-tests, ANOVA, chi-square, paired comparisons, and more.
+                </p>
+
+                <div class="screenshot-wrapper">
+                    <img src="images/00-pathways.jpg" alt="Five pathway cards: Comparing Groups, Correlation, Regression, Agreement, Diagnostic">
+                    <div class="screenshot-caption">The five pathways available in ChooseMyStat</div>
+                </div>
+
+                <div class="action-box">
+                    Click <strong>"Comparing Groups / Before-After"</strong> to start the guided decision tree.
+                </div>
+            </div>
+        </section>
+
+        <!-- Step 2: Outcome type -->
+        <section class="step">
+            <div class="step-header">
+                <div class="step-badge">2</div>
+                <h2>Step 1 in the App: <span class="highlight">Outcome Type</span></h2>
+            </div>
+            <div class="step-body">
+                <p>
+                    The first question the app asks is: <strong>"What type of outcome variable are you measuring?"</strong>
+                </p>
+                <p>
+                    Our outcome is systolic blood pressure measured in millimetres of mercury (mmHg). This is a <strong>continuous</strong> variable &mdash; it can take any numeric value within a range and is measured on an interval/ratio scale.
+                </p>
+
+                <div class="tip-box">
+                    <strong>Why "Continuous"?</strong> Blood pressure readings are numeric measurements on a continuous scale (e.g., 132 mmHg, 141.5 mmHg). If instead our outcome were categories like "hypertensive / normotensive", we would choose "Categorical". If it were an ordinal score (e.g., pain on a 0&ndash;10 scale with few levels), we might choose "Ordinal".
+                </div>
+
+                <div class="action-box">
+                    Select <strong>"Continuous"</strong>.
+                </div>
+
+                <div class="screenshot-wrapper">
+                    <img src="images/01-step1-outcome.jpg" alt="Step 1: Outcome type question with Continuous selected">
+                    <div class="screenshot-caption">Select "Continuous" for blood pressure in mmHg</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Step 3: Comparison structure -->
+        <section class="step">
+            <div class="step-header">
+                <div class="step-badge">3</div>
+                <h2>Step 2 in the App: <span class="highlight">Comparison Structure</span></h2>
+            </div>
+            <div class="step-body">
+                <p>
+                    Next, the app asks: <strong>"What is the structure of your comparison?"</strong>
+                </p>
+                <p>
+                    In our study, the <strong>same subjects</strong> are measured twice &mdash; once before the yoga programme and once after. This is a <strong>paired</strong> (or <strong>before-after</strong>) design with two time points.
+                </p>
+
+                <div class="tip-box">
+                    <strong>Paired vs. Independent:</strong> The key distinction is whether the two sets of measurements come from the same individuals or from different groups. Here, each patient serves as their own control, so the measurements are <em>paired</em>. If we were comparing a yoga group against a separate control group, the comparison would be "2 Independent Groups" instead.
+                </div>
+
+                <div class="action-box">
+                    Select <strong>"2 Paired / Before-After"</strong>.
+                </div>
+
+                <div class="screenshot-wrapper">
+                    <img src="images/01-step2-comparison.jpg" alt="Step 2: Comparison structure with 2 Paired / Before-After selected">
+                    <div class="screenshot-caption">Select "2 Paired / Before-After" for the pre-post design</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Step 4: Distribution -->
+        <section class="step">
+            <div class="step-header">
+                <div class="step-badge">4</div>
+                <h2>Step 3 in the App: <span class="highlight">Distribution</span></h2>
+            </div>
+            <div class="step-body">
+                <p>
+                    The app now asks: <strong>"Are the differences (or the data) approximately normally distributed?"</strong>
+                </p>
+                <p>
+                    For the paired t-test, what matters is whether the <em>within-subject differences</em> (post-SBP minus pre-SBP for each patient) follow a roughly normal distribution. Blood pressure differences are generally normally distributed in clinical samples of moderate size (n &ge; 20&ndash;30). In our planned study, we expect around 30 subjects, so this assumption is reasonable.
+                </p>
+
+                <div class="tip-box">
+                    <strong>When to say "No":</strong> If your sample is very small (say, n &lt; 15) and you have reason to believe the differences are heavily skewed &mdash; for example, if you are measuring highly skewed outcomes like hospital costs or antibody titres &mdash; you should choose "No". The app will then recommend the Wilcoxon signed-rank test, the non-parametric counterpart of the paired t-test.
+                </div>
+
+                <div class="action-box">
+                    Select <strong>"Yes, Normal"</strong>.
+                </div>
+
+                <div class="screenshot-wrapper">
+                    <img src="images/01-step3-distribution.jpg" alt="Step 3: Distribution question with Yes, Normal selected">
+                    <div class="screenshot-caption">Select "Yes, Normal" &mdash; BP differences are typically normal in moderate samples</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Step 5: Confounders -->
+        <section class="step">
+            <div class="step-header">
+                <div class="step-badge">5</div>
+                <h2>Step 4 in the App: <span class="highlight">Confounders</span></h2>
+            </div>
+            <div class="step-body">
+                <p>
+                    The final question: <strong>"Do you need to adjust for confounders or covariates?"</strong>
+                </p>
+                <p>
+                    In this simple pre-post study, we are making a straightforward comparison: did SBP change after yoga? We are <strong>not</strong> adjusting for age, BMI, baseline medication use, or any other variables in this primary analysis.
+                </p>
+
+                <div class="tip-box">
+                    <strong>When to say "Yes":</strong> If your study had additional variables you wanted to control for &mdash; for instance, if you wanted to adjust for baseline BMI or concurrent medication use &mdash; you would say "Yes". The app would then guide you toward a more complex model such as linear mixed models or repeated-measures ANCOVA.
+                </div>
+
+                <div class="action-box">
+                    Select <strong>"No"</strong>.
+                </div>
+
+                <div class="screenshot-wrapper">
+                    <img src="images/01-step4-confounders.jpg" alt="Step 4: Confounders question with No selected">
+                    <div class="screenshot-caption">Select "No" for a simple paired comparison without covariate adjustment</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Step 6: The Result -->
+        <section class="step">
+            <div class="step-header">
+                <div class="step-badge green">6</div>
+                <h2><span class="highlight" style="color: var(--green);">The Result:</span> Paired t-test Recommended</h2>
+            </div>
+            <div class="step-body">
+                <p>
+                    The app now shows you the recommended statistical test: <strong>Paired t-test</strong>. This is exactly the right test for comparing two continuous measurements taken on the same subjects when the differences are approximately normally distributed.
+                </p>
+
+                <div class="screenshot-wrapper">
+                    <img src="images/01-result-top.jpg" alt="Result page showing Paired t-test recommended">
+                    <div class="screenshot-caption">ChooseMyStat recommends the Paired t-test</div>
+                </div>
+
+                <p>
+                    Scroll down on the result page and you will find a <strong>SAP (Statistical Analysis Plan) template</strong> &mdash; a ready-to-use paragraph describing the statistical methods for your protocol or thesis. Below the SAP text, you will see a green <strong>"Calculate Sample Size"</strong> button.
+                </p>
+
+                <div class="screenshot-wrapper">
+                    <img src="images/01-result-sap.jpg" alt="SAP template text and Calculate Sample Size button">
+                    <div class="screenshot-caption">The SAP template and the green "Calculate Sample Size" button</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Step 7: Sample Size Calculation -->
+        <section class="step">
+            <div class="step-header">
+                <div class="step-badge green">7</div>
+                <h2><span class="highlight" style="color: var(--green);">Sample Size Calculation</span></h2>
+            </div>
+            <div class="step-body">
+                <p>
+                    Click the green <strong>"Calculate Sample Size"</strong> button. A form will appear asking for the inputs needed to calculate the required sample size for the paired t-test.
+                </p>
+
+                <div class="screenshot-wrapper">
+                    <img src="images/01-ss-form.jpg" alt="Empty sample size calculation form">
+                    <div class="screenshot-caption">The sample size form &mdash; ready for your inputs</div>
+                </div>
+
+                <p>Now fill in the parameters from our study scenario:</p>
+
+                <div style="overflow-x: auto; margin: 16px 0;">
+                    <table style="width: 100%; border-collapse: collapse; font-size: 15px;">
+                        <thead>
+                            <tr style="background: var(--purple-light);">
+                                <th style="text-align: left; padding: 10px 14px; border-bottom: 2px solid var(--purple); color: var(--purple-dark);">Parameter</th>
+                                <th style="text-align: left; padding: 10px 14px; border-bottom: 2px solid var(--purple); color: var(--purple-dark);">Value</th>
+                                <th style="text-align: left; padding: 10px 14px; border-bottom: 2px solid var(--purple); color: var(--purple-dark);">Why?</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td style="padding: 10px 14px; border-bottom: 1px solid var(--border);">Mean difference (&delta;)</td>
+                                <td style="padding: 10px 14px; border-bottom: 1px solid var(--border);"><strong>8 mmHg</strong></td>
+                                <td style="padding: 10px 14px; border-bottom: 1px solid var(--border);">Expected SBP reduction from Cramer et al. 2014 meta-analysis of yoga RCTs</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px 14px; border-bottom: 1px solid var(--border);">SD of differences</td>
+                                <td style="padding: 10px 14px; border-bottom: 1px solid var(--border);"><strong>15 mmHg</strong></td>
+                                <td style="padding: 10px 14px; border-bottom: 1px solid var(--border);">Within-subject variability from Hagins et al. 2013 / Indian yoga literature</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px 14px; border-bottom: 1px solid var(--border);">Alpha (&alpha;)</td>
+                                <td style="padding: 10px 14px; border-bottom: 1px solid var(--border);"><strong>0.05</strong></td>
+                                <td style="padding: 10px 14px; border-bottom: 1px solid var(--border);">Standard 5% significance level (two-sided)</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px 14px; border-bottom: 1px solid var(--border);">Power (1 &minus; &beta;)</td>
+                                <td style="padding: 10px 14px; border-bottom: 1px solid var(--border);"><strong>80%</strong></td>
+                                <td style="padding: 10px 14px; border-bottom: 1px solid var(--border);">Conventional power for clinical studies</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px 14px; border-bottom: 1px solid var(--border);">Test type</td>
+                                <td style="padding: 10px 14px; border-bottom: 1px solid var(--border);"><strong>Two-sided</strong></td>
+                                <td style="padding: 10px 14px; border-bottom: 1px solid var(--border);">We test for any change (increase or decrease), not just a reduction</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px 14px;">Dropout / non-response</td>
+                                <td style="padding: 10px 14px;"><strong>15%</strong></td>
+                                <td style="padding: 10px 14px;">To account for loss to follow-up over the 12-week period</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="screenshot-wrapper">
+                    <img src="images/01-ss-filled.jpg" alt="Sample size form filled with delta=8, SD=15">
+                    <div class="screenshot-caption">Form filled in: &delta; = 8 mmHg, SD = 15 mmHg</div>
+                </div>
+
+                <div class="action-box">
+                    Click <strong>"Calculate"</strong> to get your sample size.
+                </div>
+
+                <div class="result-card">
+                    <h3>Sample Size Result</h3>
+                    <p>The app calculates:</p>
+                    <div class="result-stat">n = 28 (analytical) &rarr; N = 33 (with 15% dropout)</div>
+                    <p>
+                        You need <strong>28 subjects</strong> to detect an 8 mmHg reduction in SBP with 80% power at the 5% significance level. After adding 15% to account for dropout, you should <strong>recruit 33 patients</strong>.
+                    </p>
+                </div>
+
+                <div class="screenshot-wrapper">
+                    <img src="images/01-ss-result.jpg" alt="Sample size result showing n=28 analytical, N=33 with dropout">
+                    <div class="screenshot-caption">Result: n = 28 (analytical), N = 33 (with 15% dropout adjustment)</div>
+                </div>
+
+                <div class="tip-box">
+                    <strong>Where do &delta; and SD come from?</strong> These are the two most critical inputs for any sample size calculation. You should derive them from <em>published literature</em> (pilot studies, meta-analyses, or similar studies in your population) or from your own pilot data. Never guess these values &mdash; a poorly chosen &delta; or SD will give you a study that is either underpowered (misses a real effect) or wasteful (recruits far more patients than needed). For this tutorial, we used the Cramer et al. 2014 meta-analysis and Hagins et al. 2013 as references.
+                </div>
+            </div>
+        </section>
+
+        <!-- Step 8: What You Get -->
+        <section class="step">
+            <div class="step-header">
+                <div class="step-badge green">8</div>
+                <h2><span class="highlight" style="color: var(--green);">What You Get</span> from ChooseMyStat</h2>
+            </div>
+            <div class="step-body">
+                <p>
+                    In addition to the test recommendation and sample size, ChooseMyStat provides several ready-to-use outputs that you can directly incorporate into your thesis or protocol:
+                </p>
+
+                <div class="deliverables">
+                    <div class="deliverable-item">
+                        <h4>SAP Template</h4>
+                        <p>A pre-written Statistical Analysis Plan paragraph describing your chosen test, assumptions, and sample size justification. Copy it into your protocol.</p>
+                    </div>
+                    <div class="deliverable-item">
+                        <h4>Results Example</h4>
+                        <p>A template showing how to report the paired t-test results in your thesis, following standard reporting guidelines (mean difference, 95% CI, p-value).</p>
+                    </div>
+                    <div class="deliverable-item">
+                        <h4>R Code</h4>
+                        <p>Ready-to-run R code for performing the paired t-test on your data, including data import, assumption checking (Shapiro-Wilk test), and the t-test itself.</p>
+                    </div>
+                    <div class="deliverable-item">
+                        <h4>G*Power Instructions</h4>
+                        <p>Step-by-step instructions for verifying your sample size calculation in G*Power, the free power analysis software frequently requested by ethics committees.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Key Takeaways -->
+        <section class="takeaways">
+            <h2>Key Takeaways</h2>
+            <ol>
+                <li>
+                    <strong>Why the paired t-test fits this scenario:</strong> We have a continuous outcome (SBP), two measurements on the <em>same subjects</em> (before and after), approximately normal differences, and no need to adjust for confounders. The paired t-test is the natural choice.
+                </li>
+                <li>
+                    <strong>When to use the Wilcoxon signed-rank test instead:</strong> If your sample is very small or the within-subject differences are clearly non-normal (heavily skewed or with outliers), choose "No" at the distribution step. The app will recommend the Wilcoxon signed-rank test, which does not assume normality.
+                </li>
+                <li>
+                    <strong>Always specify &delta; and SD from literature:</strong> The two most important inputs for sample size are the expected mean difference (&delta;) and the standard deviation of paired differences (SD). Look these up in published meta-analyses, systematic reviews, or pilot studies from your population. Do not invent these numbers.
+                </li>
+                <li>
+                    <strong>Account for dropout:</strong> In any longitudinal study, some participants will be lost to follow-up. Adding 10&ndash;20% to your calculated sample size (depending on the study duration and setting) ensures you retain adequate power even after dropouts.
+                </li>
+                <li>
+                    <strong>Limitations of the pre-post design:</strong> A simple before-after study without a control group cannot rule out confounders such as regression to the mean, seasonal variation, or concurrent medications. For stronger causal inference, consider a randomised controlled trial with a parallel control group (which would use the independent-samples t-test or ANCOVA).
+                </li>
+            </ol>
+        </section>
+
+        <!-- Try it yourself CTA -->
+        <section class="cta-section">
+            <p>Ready to find the right test for <em>your</em> study?</p>
+            <a href="https://choose-my-stat.vercel.app" target="_blank" rel="noopener" class="cta-button">
+                Try ChooseMyStat Yourself
+            </a>
+        </section>
+
+        <!-- Other Tutorials -->
+        <section class="other-tutorials">
+            <h3>All Tutorials in This Series</h3>
+            <div class="tutorial-links">
+                <a href="tutorial-paired-ttest.html" class="tutorial-link" style="border-color: var(--purple); background: var(--purple-light);">
+                    <div class="tl-num current">1</div>
+                    <div class="tl-text">
+                        <div class="tl-title">Effect of Yoga on Blood Pressure</div>
+                        <div class="tl-stat">Paired t-test &bull; You are here</div>
+                    </div>
+                </a>
+                <a href="tutorial-correlation.html" class="tutorial-link">
+                    <div class="tl-num">2</div>
+                    <div class="tl-text">
+                        <div class="tl-title">BMI and HbA1c in Type 2 Diabetes</div>
+                        <div class="tl-stat">Pearson / Spearman Correlation</div>
+                    </div>
+                </a>
+                <a href="tutorial-anova.html" class="tutorial-link">
+                    <div class="tl-num">3</div>
+                    <div class="tl-text">
+                        <div class="tl-title">Comparing Three Diabetes Treatment Regimens</div>
+                        <div class="tl-stat">One-way ANOVA</div>
+                    </div>
+                </a>
+                <a href="tutorial-logistic-regression.html" class="tutorial-link">
+                    <div class="tl-num">4</div>
+                    <div class="tl-text">
+                        <div class="tl-title">Risk Factors for Preeclampsia</div>
+                        <div class="tl-stat">Logistic Regression</div>
+                    </div>
+                </a>
+                <a href="tutorial-icc.html" class="tutorial-link">
+                    <div class="tl-num">5</div>
+                    <div class="tl-text">
+                        <div class="tl-title">Inter-Rater Reliability of Fundoscopy Grading</div>
+                        <div class="tl-stat">Intraclass Correlation (ICC)</div>
+                    </div>
+                </a>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>
+            <strong>ChooseMyStat Tutorials</strong> &mdash; AIIMS Bhopal, Clinical Epidemiology Unit
+        </p>
+        <p style="margin-top: 6px;">
+            <a href="index.html">Back to Tutorial Index</a> &nbsp;&middot;&nbsp;
+            <a href="https://choose-my-stat.vercel.app" target="_blank" rel="noopener">Open ChooseMyStat</a>
+        </p>
+    </footer>
+
+</body>
+</html>
